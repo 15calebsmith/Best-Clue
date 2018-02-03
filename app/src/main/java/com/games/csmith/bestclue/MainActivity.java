@@ -22,7 +22,12 @@ import android.content.res.Resources.Theme;
 
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+    private ArrayList<String> tabsArrayList = new ArrayList<>();
+    private Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,24 +38,24 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        // Setup spinner
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setAdapter(new MyAdapter(
-                toolbar.getContext(),
-                new String[]{
-                        "Section 1",
-                        "Section 2",
-                        "Section 3",
-                }));
+        spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setAdapter(new MyAdapter(toolbar.getContext(), tabsArrayList));
 
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // When the given dropdown item is selected, show its contents in the
                 // container view.
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, MainFragment.newInstance(position + 1))
-                        .commit();
+                if (position == 0) {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, MainFragment.newInstance(position + 1))
+                            .commit();
+                }
+                else {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, PlayerFragment.newInstance(position + 1))
+                            .commit();
+                }
             }
 
             @Override
@@ -96,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private static class MyAdapter extends ArrayAdapter<String> implements ThemedSpinnerAdapter {
         private final ThemedSpinnerAdapter.Helper mDropDownHelper;
 
-        public MyAdapter(Context context, String[] objects) {
+        MyAdapter(Context context, List<String> objects) {
             super(context, android.R.layout.simple_list_item_1, objects);
             mDropDownHelper = new ThemedSpinnerAdapter.Helper(context);
         }
