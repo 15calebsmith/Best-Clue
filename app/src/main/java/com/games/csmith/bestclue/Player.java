@@ -9,12 +9,14 @@ import android.os.Parcelable;
 
 public class Player implements Parcelable {
     private String name;
-    
+
     protected Player(Parcel in) {
+        name = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
     }
 
     @Override

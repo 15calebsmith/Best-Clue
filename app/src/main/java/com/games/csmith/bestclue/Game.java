@@ -13,6 +13,7 @@ public class Game implements Parcelable {
     private ArrayList<Player> players;
 
     protected Game(Parcel in) {
+        in.readTypedList(players, Player.CREATOR);
     }
 
     public static final Creator<Game> CREATOR = new Creator<Game>() {
@@ -34,5 +35,6 @@ public class Game implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(players);
     }
 }
