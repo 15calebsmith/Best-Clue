@@ -12,8 +12,20 @@ import java.util.ArrayList;
 public class Game implements Parcelable {
     private ArrayList<Player> players;
 
-    protected Game(Parcel in) {
+    Game() {
+        players = new ArrayList<>();
+    }
+
+    private Game(Parcel in) {
         in.readTypedList(players, Player.CREATOR);
+    }
+
+    void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    ArrayList<Player> getPlayers() {
+        return players;
     }
 
     public static final Creator<Game> CREATOR = new Creator<Game>() {
