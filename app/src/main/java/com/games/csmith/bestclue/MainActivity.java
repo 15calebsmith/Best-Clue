@@ -1,8 +1,6 @@
 package com.games.csmith.bestclue;
 
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -29,6 +27,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ArrayList<String> tabsArrayList = new ArrayList<>();
+    private static final String TABS_ARRAY_LIST_KEY = "TABS_ARRAY_LIST_KEY";
     private Spinner spinner;
     
     private Game game;
@@ -69,15 +68,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         game = new Game();
     }
 
@@ -85,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "onSaveInstanceState: ");
         savedInstanceState.putParcelable(GAME_KEY, game);
+        savedInstanceState.putStringArrayList(TABS_ARRAY_LIST_KEY, tabsArrayList);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -92,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "onRestoreInstanceState: ");
         super.onRestoreInstanceState(savedInstanceState);
+        tabsArrayList = savedInstanceState.getStringArrayList(TABS_ARRAY_LIST_KEY);
         game = savedInstanceState.getParcelable(GAME_KEY);
     }
 
