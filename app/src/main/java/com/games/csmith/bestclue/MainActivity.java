@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,11 +27,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private ArrayList<String> tabsArrayList = new ArrayList<>();
     private Spinner spinner;
+    
+    private Game game;
+    private static final String GAME_KEY = "GAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -72,8 +78,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        game = new Game();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "onSaveInstanceState: ");
+        savedInstanceState.putParcelable(GAME_KEY, game);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, "onRestoreInstanceState: ");
+        super.onRestoreInstanceState(savedInstanceState);
+        game = savedInstanceState.getParcelable(GAME_KEY);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
