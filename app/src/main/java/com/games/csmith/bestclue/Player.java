@@ -9,14 +9,20 @@ import android.os.Parcelable;
 
 public class Player implements Parcelable {
     private String name;
+    private int numberOfCards;
+    private Card[] cards;
 
     protected Player(Parcel in) {
         name = in.readString();
+        numberOfCards = in.readInt();
+        cards = in.createTypedArray(Card.CREATOR);
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
+        dest.writeInt(numberOfCards);
+        dest.writeTypedArray(cards, 0);
     }
 
     @Override
