@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">BestClue</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="add_player_button_text">Add Player</string>
+    <string name="start_game_button_text">Start Game</string>
+    <string name="end_game_button_text">End Game</string>
+    <string name="new_turn_button_text">New Turn</string>
+
 </resources>

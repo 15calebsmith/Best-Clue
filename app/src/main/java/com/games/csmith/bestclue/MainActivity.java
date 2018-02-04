@@ -90,6 +90,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void onAddPlayerButtonOnClick(View view) {
+        Log.d(TAG, "onAddPlayerButtonOnClick: ");
+    }
+
+    public void onStartGameButtonOnClick(View view) {
+        Log.d(TAG, "onStartGameButtonOnClick: ");
+    }
+
+    public void onEndGameButtonOnClick(View view) {
+        Log.d(TAG, "onEndGameButtonOnClick: ");
+    }
+
+    public void onNewTurnButtonOnClick(View view) {
+        Log.d(TAG, "onNewTurnButtonOnClick: ");
+    }
 
     private static class TabsAdapter extends ArrayAdapter<String> implements ThemedSpinnerAdapter {
         private final ThemedSpinnerAdapter.Helper mDropDownHelper;
