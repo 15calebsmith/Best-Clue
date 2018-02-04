@@ -44,29 +44,8 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setAdapter(new MyAdapter(toolbar.getContext(), tabsArrayList));
-
-        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // When the given dropdown item is selected, show its contents in the
-                // container view.
-                if (position == 0) {
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, MainFragment.newInstance(position + 1))
-                            .commit();
-                }
-                else {
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, PlayerFragment.newInstance(position + 1))
-                            .commit();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        spinner.setAdapter(new TabsAdapter(toolbar.getContext(), tabsArrayList));
+        spinner.setOnItemSelectedListener(new OnTabSelectedListener());
 
         game = new Game();
     }
@@ -110,10 +89,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private static class MyAdapter extends ArrayAdapter<String> implements ThemedSpinnerAdapter {
+    private static class TabsAdapter extends ArrayAdapter<String> implements ThemedSpinnerAdapter {
         private final ThemedSpinnerAdapter.Helper mDropDownHelper;
 
-        MyAdapter(Context context, List<String> objects) {
+        TabsAdapter(Context context, List<String> objects) {
             super(context, android.R.layout.simple_list_item_1, objects);
             mDropDownHelper = new ThemedSpinnerAdapter.Helper(context);
         }
@@ -144,6 +123,28 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void setDropDownViewTheme(Theme theme) {
             mDropDownHelper.setDropDownViewTheme(theme);
+        }
+    }
+
+    private class OnTabSelectedListener implements  OnItemSelectedListener {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            // When the given dropdown item is selected, show its contents in the
+            // container view.
+            if (position == 0) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, MainFragment.newInstance(position + 1))
+                        .commit();
+            }
+            else {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, PlayerFragment.newInstance(position + 1))
+                        .commit();
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
         }
     }
 }
