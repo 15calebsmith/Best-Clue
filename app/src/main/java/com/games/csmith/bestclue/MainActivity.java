@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        tabsArrayList.add(this.getResources().getString(R.string.app_name));
+
         spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setAdapter(new TabsAdapter(toolbar.getContext(), tabsArrayList));
         spinner.setOnItemSelectedListener(new OnTabSelectedListener());
