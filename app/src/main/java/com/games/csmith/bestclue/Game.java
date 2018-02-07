@@ -28,6 +28,18 @@ public class Game implements Parcelable {
         return players;
     }
 
+    boolean containsPlayer(String name) {
+        boolean ret = false;
+        for (Player player : players) {
+            if (player.getName().equals(name)) {
+                ret = true;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
     public static final Creator<Game> CREATOR = new Creator<Game>() {
         @Override
         public Game createFromParcel(Parcel in) {

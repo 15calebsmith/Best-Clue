@@ -7,4 +7,8 @@
     <string name="end_game_button_text">End Game</string>
     <string name="new_turn_button_text">New Turn</string>
 
+    <string name="add_player_dialog_title">Add Player</string>
+
+    <string name="player_name_hint">Player Name</string>
+
 </resources>

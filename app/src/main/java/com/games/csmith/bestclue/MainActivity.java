@@ -1,6 +1,8 @@
 package com.games.csmith.bestclue;
 
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -14,12 +16,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.content.Context;
 import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.content.res.Resources.Theme;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +96,38 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddPlayerButtonOnClick(View view) {
         Log.d(TAG, "onAddPlayerButtonOnClick: ");
+        showAddPlayerDialog();
+    }
+
+    private void showAddPlayerDialog() {
+        Log.d(TAG, "showAddPlayerDialog: ");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.add_player_dialog_title)
+                .setView(R.layout.dialog_enter_player_name)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText playerNameEditText = ((AlertDialog) dialog).findViewById(R.id.player_name_edit_text);
+                        if (playerNameEditText != null) {
+                            String playerName = playerNameEditText.getText().toString().trim();
+                            addPlayer(playerName);
+                        }
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void addPlayer(String playerName) {
+        if (!game.containsPlayer(playerName)) {
+            Player player = new Player(playerName);
+            game.addPlayer(player);
+            tabsArrayList.add(playerName);
+            Toast.makeText(getApplicationContext(), playerName + " is now playing.", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), playerName + " is already playing!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onStartGameButtonOnClick(View view) {

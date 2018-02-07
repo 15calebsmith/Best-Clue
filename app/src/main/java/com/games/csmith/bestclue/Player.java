@@ -36,6 +36,10 @@ public class Player implements Parcelable {
         }
     }
 
+    String getName() {
+        return name;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
