@@ -16,8 +16,8 @@ class Card implements Parcelable {
     private String cardType;
     private int id;
 
-    Card(String cardType, int id) {
-        this.cardType = cardType;
+    Card(int id) {
+        this.cardType = getCardTypeFromId(id);
         this.id = id;
     }
 
@@ -26,6 +26,17 @@ class Card implements Parcelable {
         id = in.readInt();
     }
 
+    private static String getCardTypeFromId(int id) {
+        if (id < SUSPECTS.length) {
+            return SUSPECT;
+        } else if (id < (SUSPECTS.length + WEAPONS.length)) {
+            return WEAPON;
+        } else if (id < (getCardCount())) {
+            return ROOM;
+        } else {
+            return NONE;
+        }
+    }
     public String getCardType() {
         return cardType;
     }
@@ -63,5 +74,46 @@ class Card implements Parcelable {
         public Card[] newArray(int size) {
             return new Card[size];
         }
+    };
+
+    static int getCardCount() {
+        return SUSPECTS.length + WEAPONS.length + ROOMS.length;
+    }
+    static CharSequence[] getCards() {
+        String[] cards = new String[getCardCount()];
+        System.arraycopy(SUSPECTS, 0, cards, 0, SUSPECTS.length);
+        System.arraycopy(WEAPONS, 0, cards, SUSPECTS.length, WEAPONS.length);
+        System.arraycopy(ROOMS, 0, cards, SUSPECTS.length + WEAPONS.length, ROOMS.length);
+        return cards;
+    }
+
+    private static final String[] SUSPECTS = {
+            "Colonel Mustard",
+            "Professor Plum",
+            "Mr. Green",
+            "Mrs. Peacock",
+            "Miss Scarlet",
+            "Mrs. White",
+    };
+
+    private static final String[] WEAPONS = {
+            "Knife",
+            "Candlestick",
+            "Revolver",
+            "Rope",
+            "Lead Pipe",
+            "Wrench",
+    };
+
+    private static final String[] ROOMS = {
+            "Hall",
+            "Lounge",
+            "Dining Hall",
+            "Kitchen",
+            "Ballroom",
+            "Conservatory",
+            "Billiard Room",
+            "Library",
+            "Study",
     };
 }

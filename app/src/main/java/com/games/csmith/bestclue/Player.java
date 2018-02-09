@@ -3,8 +3,6 @@ package com.games.csmith.bestclue;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Set;
-
 /**
  * Created by csmith on 2/3/18.
  */
@@ -17,7 +15,7 @@ public class Player implements Parcelable {
     Player(String name) {
         this.name = name;
         this.numberOfCards = 0;
-        this.cards = new Card[21];
+        this.cards = new Card[Card.getCardCount()];
     }
 
     private Player(Parcel in) {
@@ -30,10 +28,22 @@ public class Player implements Parcelable {
         this.numberOfCards = numberOfCards;
     }
 
-    void setCards(Set<Card> cards) {
-        for (Card card : cards) {
-            this.cards[card.getId()] = card;
+    void setCards(boolean[] hasCard) {
+        clearCards();
+        int numberOfCards = 0;
+        for (int i = 0; i < hasCard.length; i++) {
+            if (hasCard[i]) {
+                this.cards[i] = new Card(i);
+                numberOfCards++;
+            }
         }
+
+        setNumberOfCards(numberOfCards);
+    }
+
+    void clearCards() {
+        setNumberOfCards(0);
+        cards = new Card[Card.getCardCount()];
     }
 
     String getName() {

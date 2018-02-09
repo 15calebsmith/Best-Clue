@@ -147,6 +147,45 @@ public class MainActivity extends AppCompatActivity {
 
     public void onStartGameButtonOnClick(View view) {
         Log.d(TAG, "onStartGameButtonOnClick: ");
+        showSelectMainPlayerDialog();
+    }
+
+    private void showSelectMainPlayerDialog() {
+        final ArrayList<Player> players = game.getPlayers();
+        CharSequence[] playersCharSequenceArray = new CharSequence[players.size()];
+        for (int i = 0; i < players.size(); i++) {
+            playersCharSequenceArray[i] = players.get(i).getName();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.select_main_player_dialog_title)
+                .setItems(playersCharSequenceArray, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showSelectMainPlayersCardsDialog(players.get(which));
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void showSelectMainPlayersCardsDialog(final Player mainPlayer) {
+        final boolean[] checkedCards = new boolean[Card.getCardCount()];
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.select_main_players_cards_dialog_title, mainPlayer.getName()))
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mainPlayer.setCards(checkedCards);
+                    }
+                })
+                .setMultiChoiceItems(Card.getCards(), checkedCards, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        checkedCards[which] = isChecked;
+                    }
+                });
+        builder.create().show();
     }
 
     public void onEndGameButtonOnClick(View view) {
