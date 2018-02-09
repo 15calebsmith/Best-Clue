@@ -40,6 +40,10 @@ public class Game implements Parcelable {
         return ret;
     }
 
+    boolean hasEnoughPlayersToStart() {
+        return players.size() >= 2;
+    }
+
     public static final Creator<Game> CREATOR = new Creator<Game>() {
         @Override
         public Game createFromParcel(Parcel in) {

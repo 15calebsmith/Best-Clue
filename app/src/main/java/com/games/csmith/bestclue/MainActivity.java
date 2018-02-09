@@ -1,5 +1,6 @@
 package com.games.csmith.bestclue;
 
+import android.support.v4.app.Fragment;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -8,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.content.Context;
@@ -31,6 +34,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ArrayList<String> tabsArrayList = new ArrayList<>();
+    private SparseArray<Fragment> fragmentArrayList = new SparseArray<>();
     private static final String TABS_ARRAY_LIST_KEY = "TABS_ARRAY_LIST_KEY";
     private Spinner spinner;
     
@@ -123,10 +127,21 @@ public class MainActivity extends AppCompatActivity {
             Player player = new Player(playerName);
             game.addPlayer(player);
             tabsArrayList.add(playerName);
+            if (game.hasEnoughPlayersToStart()) {
+                enableStartGameButton();
+            }
             Toast.makeText(getApplicationContext(), playerName + " is now playing.", Toast.LENGTH_SHORT).show();
         }
         else {
             Toast.makeText(getApplicationContext(), playerName + " is already playing!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void enableStartGameButton() {
+        View fragmentView = fragmentArrayList.get(0).getView();
+        if (fragmentView != null) {
+            Button startGameButton = fragmentView.findViewById(R.id.start_game_button);
+            startGameButton.setEnabled(true);
         }
     }
 
@@ -185,13 +200,17 @@ public class MainActivity extends AppCompatActivity {
             // When the given dropdown item is selected, show its contents in the
             // container view.
             if (position == 0) {
+                MainFragment mainFragment = MainFragment.newInstance(position + 1);
+                fragmentArrayList.put(position, mainFragment);
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, MainFragment.newInstance(position + 1))
+                        .replace(R.id.container, mainFragment)
                         .commit();
             }
             else {
+                PlayerFragment playerFragment = PlayerFragment.newInstance(position + 1);
+                fragmentArrayList.put(position, playerFragment);
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, PlayerFragment.newInstance(position + 1))
+                        .replace(R.id.container, playerFragment)
                         .commit();
             }
         }
