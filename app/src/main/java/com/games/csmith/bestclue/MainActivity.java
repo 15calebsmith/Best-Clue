@@ -1,45 +1,35 @@
 package com.games.csmith.bestclue;
 
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.content.Context;
-import android.support.v7.widget.ThemedSpinnerAdapter;
-import android.content.res.Resources.Theme;
 
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ArrayList<String> tabsArrayList = new ArrayList<>();
-    private SparseArray<Fragment> fragmentArrayList = new SparseArray<>();
     private static final String TABS_ARRAY_LIST_KEY = "TABS_ARRAY_LIST_KEY";
-    private Spinner spinner;
-    
+    ViewPager viewPager;
+
     private Game game;
-    private static final String GAME_KEY = "GAME";
+    private static final String GAME_KEY = "GAME_KEY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        tabsArrayList.add(this.getResources().getString(R.string.app_name));
-
-        spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setAdapter(new TabsAdapter(toolbar.getContext(), tabsArrayList));
-        spinner.setOnItemSelectedListener(new OnTabSelectedListener());
+        viewPager = findViewById(R.id.view_pager);
+        viewPager.setAdapter(new BestCluePagerAdapter(getSupportFragmentManager()));
+        viewPager.setOffscreenPageLimit(7);
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
+        newGame();
 
         game = new Game();
     }
@@ -73,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onRestoreInstanceState: ");
         super.onRestoreInstanceState(savedInstanceState);
         tabsArrayList = savedInstanceState.getStringArrayList(TABS_ARRAY_LIST_KEY);
+        viewPager.getAdapter().notifyDataSetChanged();
         game = savedInstanceState.getParcelable(GAME_KEY);
     }
 
@@ -96,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void newGame() {
+        game = new Game();
+        tabsArrayList.clear();
+        tabsArrayList.add(getString(R.string.main_tab_title));
+        viewPager.getAdapter().notifyDataSetChanged();
     }
 
     public void onAddPlayerButtonOnClick(View view) {
@@ -127,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
             Player player = new Player(playerName);
             game.addPlayer(player);
             tabsArrayList.add(playerName);
+            viewPager.getAdapter().notifyDataSetChanged();
             if (game.hasEnoughPlayersToStart()) {
                 enableStartGameButton();
             }
@@ -138,9 +137,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableStartGameButton() {
-        View fragmentView = fragmentArrayList.get(0).getView();
-        if (fragmentView != null) {
-            Button startGameButton = fragmentView.findViewById(R.id.start_game_button);
+        Button startGameButton = findViewById(R.id.start_game_button);
+        if (startGameButton != null) {
             startGameButton.setEnabled(true);
         }
     }
@@ -222,87 +220,58 @@ public class MainActivity extends AppCompatActivity {
 
     private void startGame() {
         Log.d(TAG, "startGame: ");
-        View fragmentView = fragmentArrayList.get(0).getView();
-        if (fragmentView != null) {
-            Button addPlayerButton = fragmentView.findViewById(R.id.add_player_button);
-            addPlayerButton.setVisibility(View.GONE);
-            Button startGameButton = fragmentView.findViewById(R.id.start_game_button);
-            startGameButton.setVisibility(View.GONE);
-            Button endGameButton = fragmentView.findViewById(R.id.end_game_button);
-            endGameButton.setVisibility(View.VISIBLE);
-            Button newTurnButton = fragmentView.findViewById(R.id.new_turn_button);
-            newTurnButton.setVisibility(View.VISIBLE);
-        }
+        Button addPlayerButton = findViewById(R.id.add_player_button);
+        addPlayerButton.setVisibility(View.GONE);
+        Button startGameButton = findViewById(R.id.start_game_button);
+        startGameButton.setVisibility(View.GONE);
+        Button endGameButton = findViewById(R.id.end_game_button);
+        endGameButton.setVisibility(View.VISIBLE);
+        Button newTurnButton = findViewById(R.id.new_turn_button);
+        newTurnButton.setVisibility(View.VISIBLE);
     }
 
     public void onEndGameButtonOnClick(View view) {
         Log.d(TAG, "onEndGameButtonOnClick: ");
+        newGame();
+        Button addPlayerButton = findViewById(R.id.add_player_button);
+        addPlayerButton.setVisibility(View.VISIBLE);
+        Button startGameButton = findViewById(R.id.start_game_button);
+        startGameButton.setVisibility(View.VISIBLE);
+        startGameButton.setEnabled(false);
+        Button engGameButton = findViewById(R.id.end_game_button);
+        engGameButton.setVisibility(View.GONE);
+        Button newTurnButton = findViewById(R.id.new_turn_button);
+        newTurnButton.setVisibility(View.GONE);
     }
 
     public void onNewTurnButtonOnClick(View view) {
         Log.d(TAG, "onNewTurnButtonOnClick: ");
     }
 
-    private static class TabsAdapter extends ArrayAdapter<String> implements ThemedSpinnerAdapter {
-        private final ThemedSpinnerAdapter.Helper mDropDownHelper;
+    private class BestCluePagerAdapter extends FragmentPagerAdapter {
 
-        TabsAdapter(Context context, List<String> objects) {
-            super(context, android.R.layout.simple_list_item_1, objects);
-            mDropDownHelper = new ThemedSpinnerAdapter.Helper(context);
+        BestCluePagerAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-            View view;
-
-            if (convertView == null) {
-                // Inflate the drop down using the helper's LayoutInflater
-                LayoutInflater inflater = mDropDownHelper.getDropDownViewInflater();
-                view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-            } else {
-                view = convertView;
-            }
-
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
-            textView.setText(getItem(position));
-
-            return view;
-        }
-
-        @Override
-        public Theme getDropDownViewTheme() {
-            return mDropDownHelper.getDropDownViewTheme();
-        }
-
-        @Override
-        public void setDropDownViewTheme(Theme theme) {
-            mDropDownHelper.setDropDownViewTheme(theme);
-        }
-    }
-
-    private class OnTabSelectedListener implements  OnItemSelectedListener {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            // When the given dropdown item is selected, show its contents in the
-            // container view.
+        public Fragment getItem(int position) {
             if (position == 0) {
-                MainFragment mainFragment = MainFragment.newInstance(position + 1);
-                fragmentArrayList.put(position, mainFragment);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, mainFragment)
-                        .commit();
-            }
-            else {
-                PlayerFragment playerFragment = PlayerFragment.newInstance(position + 1);
-                fragmentArrayList.put(position, playerFragment);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, playerFragment)
-                        .commit();
+                return MainFragment.newInstance(position + 1);
+            } else {
+                return PlayerFragment.newInstance(position + 1);
             }
         }
 
         @Override
-        public void onNothingSelected(AdapterView<?> parent) {
+        public int getCount() {
+            return tabsArrayList.size();
         }
-    }
+
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return tabsArrayList.get(position);
+        }
+  }
 }
