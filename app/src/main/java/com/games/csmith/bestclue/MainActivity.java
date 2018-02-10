@@ -162,13 +162,17 @@ public class MainActivity extends AppCompatActivity {
                 .setItems(playersCharSequenceArray, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        showSelectMainPlayersCardsDialog(players.get(which));
+                        Player mainPlayer = players.get(which);
+                        ArrayList<Player> otherPlayers = new ArrayList<>();
+                        otherPlayers.addAll(players);
+                        otherPlayers.remove(mainPlayer);
+                        showSelectMainPlayersCardsDialog(mainPlayer, otherPlayers);
                     }
                 });
         builder.create().show();
     }
 
-    private void showSelectMainPlayersCardsDialog(final Player mainPlayer) {
+    private void showSelectMainPlayersCardsDialog(final Player mainPlayer, final ArrayList<Player> otherPlayers) {
         final boolean[] checkedCards = new boolean[Card.getCardCount()];
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -177,6 +181,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mainPlayer.setCards(checkedCards);
+                        Player otherPlayer = otherPlayers.get(0);
+                        otherPlayers.remove(otherPlayer);
+                        showSetOtherPlayersNumberOfCards(otherPlayer, otherPlayers);
                     }
                 })
                 .setMultiChoiceItems(Card.getCards(), checkedCards, new DialogInterface.OnMultiChoiceClickListener() {
@@ -186,6 +193,46 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         builder.create().show();
+    }
+
+    private void showSetOtherPlayersNumberOfCards(final Player otherPlayer, final ArrayList<Player> otherPlayers) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.set_other_players_number_of_cards_dialog_title, otherPlayer.getName()))
+                .setView(R.layout.dialog_enter_player_number_of_cards)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText playerNameEditText = (EditText) ((AlertDialog) dialog).findViewById(R.id.number_of_cards_edit_text);
+                        if (playerNameEditText != null) {
+                            String numberOfCardsText = playerNameEditText.getText().toString().trim();
+                            int numberOfCards = Integer.parseInt(numberOfCardsText);
+                            otherPlayer.setNumberOfCards(numberOfCards);
+                            otherPlayers.remove(otherPlayer);
+                            if (otherPlayers.size() > 0) {
+                                Player otherPlayer = otherPlayers.get(0);
+                                showSetOtherPlayersNumberOfCards(otherPlayer, otherPlayers);
+                            } else {
+                                startGame();
+                            }
+                        }
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void startGame() {
+        Log.d(TAG, "startGame: ");
+        View fragmentView = fragmentArrayList.get(0).getView();
+        if (fragmentView != null) {
+            Button addPlayerButton = fragmentView.findViewById(R.id.add_player_button);
+            addPlayerButton.setVisibility(View.GONE);
+            Button startGameButton = fragmentView.findViewById(R.id.start_game_button);
+            startGameButton.setVisibility(View.GONE);
+            Button endGameButton = fragmentView.findViewById(R.id.end_game_button);
+            endGameButton.setVisibility(View.VISIBLE);
+            Button newTurnButton = fragmentView.findViewById(R.id.new_turn_button);
+            newTurnButton.setVisibility(View.VISIBLE);
+        }
     }
 
     public void onEndGameButtonOnClick(View view) {

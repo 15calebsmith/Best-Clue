@@ -10,7 +10,9 @@
     <string name="add_player_dialog_title">Add Player</string>
     <string name="select_main_player_dialog_title">Select the main player</string>
     <string name="select_main_players_cards_dialog_title">Select the %1$s\'s cards</string>
+    <string name="set_other_players_number_of_cards_dialog_title">Set the number of cards for %1$s</string>
 
     <string name="player_name_hint">Player Name</string>
+    <string name="number_of_cards_hint">Number of Cards</string>
 
 </resources>
