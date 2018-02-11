@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSelectMainPlayerDialog() {
-        final ArrayList<Player> players = game.getPlayers();
+        final ArrayList<Player> players = new ArrayList<>(game.getPlayers());
         CharSequence[] playersCharSequenceArray = new CharSequence[players.size()];
         for (int i = 0; i < players.size(); i++) {
             playersCharSequenceArray[i] = players.get(i).getName();
@@ -246,6 +246,105 @@ public class MainActivity extends AppCompatActivity {
 
     public void onNewTurnButtonOnClick(View view) {
         Log.d(TAG, "onNewTurnButtonOnClick: ");
+        showAskPlayerDialog();
+    }
+
+    private void showAskPlayerDialog() {
+        final ArrayList<Player> players = new ArrayList<>(game.getPlayers());
+        final CharSequence[] playersCharSequenceArray = new CharSequence[players.size()];
+        for (int i = 0; i < players.size(); i++) {
+            playersCharSequenceArray[i] = players.get(i).getName();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.turn_ask_player_dialog_title)
+                .setItems(playersCharSequenceArray, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int askPlayer) {
+                        showAnswerPlayerDialog(players.get(askPlayer));
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void showAnswerPlayerDialog(final Player askPlayer) {
+        final ArrayList<Player> players = new ArrayList<>(game.getPlayers());
+        players.remove(askPlayer);
+        final CharSequence[] playersCharSequenceArray = new CharSequence[players.size()];
+        for (int i = 0; i < players.size(); i++) {
+            playersCharSequenceArray[i] = players.get(i).getName();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.turn_answer_player_dialog_title)
+                .setItems(playersCharSequenceArray, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int answerPlayer) {
+                        showAskSuspectDialog(askPlayer, players.get(answerPlayer));
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void showAskSuspectDialog(final Player askPlayer, final Player answerPlayer) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.turn_suspect_dialog_title)
+                .setItems(Card.getSuspects(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int suspect) {
+                        showAskWeaponDialog(askPlayer, answerPlayer, new Card(Card.SUSPECT, suspect));
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void showAskWeaponDialog(final Player askPlayer, final Player answerPlayer, final Card suspect) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.turn_weapon_dialog_title)
+                .setItems(Card.getWeapons(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int weapon) {
+                        showAskRoomDialog(askPlayer, answerPlayer, suspect, new Card(Card.WEAPON, weapon));
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void showAskRoomDialog(final Player askPlayer, final Player answerPlayer, final Card suspect, final Card weapon) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.turn_room_dialog_title)
+                .setItems(Card.getRooms(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int room) {
+                        showAnswerCardDialog(askPlayer, answerPlayer, suspect, weapon, new Card(Card.ROOM, room));
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void showAnswerCardDialog(final Player askPlayer, final Player answerPlayer, final Card suspect, final Card weapon, final Card room) {
+        final ArrayList<Card> cardOptions = new ArrayList<>();
+        cardOptions.add(suspect);
+        cardOptions.add(weapon);
+        cardOptions.add(room);
+        cardOptions.add(new Card(Card.NONE, -1));
+
+        CharSequence[] options = new CharSequence[cardOptions.size()];
+        for (int i = 0; i < options.length; i++) {
+            options[i] = cardOptions.get(i).getCardName();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.turn_answer_card_dialog_title)
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int answerCard) {
+                        Card answer = cardOptions.get(answerCard);
+                        //TODO: handle answer
+                        Log.d(TAG, "onClick: answer=" + answer.getCardName());
+                    }
+                });
+        builder.create().show();
     }
 
     private class BestCluePagerAdapter extends FragmentPagerAdapter {

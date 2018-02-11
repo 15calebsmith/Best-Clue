@@ -2,12 +2,14 @@ package com.games.csmith.bestclue;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * Created by csmith on 2/4/18.
  */
 
 class Card implements Parcelable {
+    private static final String TAG = "Card";
     protected static final String SUSPECT = "SUSPECT";
     protected static final String WEAPON = "WEAPON";
     protected static final String ROOM = "ROOM";
@@ -19,6 +21,11 @@ class Card implements Parcelable {
     Card(int id) {
         this.cardType = getCardTypeFromId(id);
         this.id = id;
+    }
+
+    Card(String cardType, int position) {
+        this.cardType = cardType;
+        this.id = getIdFromTypeAndPos(cardType, position);
     }
 
     Card(Parcel in) {
@@ -37,6 +44,39 @@ class Card implements Parcelable {
             return NONE;
         }
     }
+
+    private int getIdFromTypeAndPos(String cardType, int position) {
+        switch (cardType) {
+            case SUSPECT:
+                return  position;
+            case WEAPON:
+                return position + SUSPECTS.length;
+            case ROOM:
+                return position + SUSPECTS.length + WEAPONS.length;
+            case NONE:
+                return -1;
+            default:
+                Log.e(TAG, "getIdFromTypeAndPos: Unknown card type:" + cardType);
+                return -2;
+        }
+    }
+
+    String getCardName() {
+        switch (cardType) {
+            case SUSPECT:
+                return SUSPECTS[id];
+            case WEAPON:
+                return WEAPONS[id - SUSPECTS.length];
+            case ROOM:
+                return ROOMS[id - SUSPECTS.length - WEAPONS.length];
+            case NONE:
+                return "None";
+            default:
+                Log.e(TAG, "getCardName: Unknown card type:" + cardType);
+                return "Error";
+        }
+    }
+
     public String getCardType() {
         return cardType;
     }
@@ -79,12 +119,25 @@ class Card implements Parcelable {
     static int getCardCount() {
         return SUSPECTS.length + WEAPONS.length + ROOMS.length;
     }
+
     static CharSequence[] getCards() {
         String[] cards = new String[getCardCount()];
         System.arraycopy(SUSPECTS, 0, cards, 0, SUSPECTS.length);
         System.arraycopy(WEAPONS, 0, cards, SUSPECTS.length, WEAPONS.length);
         System.arraycopy(ROOMS, 0, cards, SUSPECTS.length + WEAPONS.length, ROOMS.length);
         return cards;
+    }
+
+    static CharSequence[] getSuspects() {
+        return SUSPECTS;
+    }
+
+    static CharSequence[] getWeapons() {
+        return WEAPONS;
+    }
+
+    static CharSequence[] getRooms() {
+        return ROOMS;
     }
 
     private static final String[] SUSPECTS = {
