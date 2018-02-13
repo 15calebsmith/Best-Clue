@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
         cardOptions.add(suspect);
         cardOptions.add(weapon);
         cardOptions.add(room);
-        cardOptions.add(new Card(Card.NONE, -1));
+        cardOptions.add(new Card(Card.NONE, Card.NONE_ID));
 
         CharSequence[] options = new CharSequence[cardOptions.size()];
         for (int i = 0; i < options.length; i++) {

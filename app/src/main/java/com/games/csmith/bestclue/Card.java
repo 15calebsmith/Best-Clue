@@ -10,10 +10,14 @@ import android.util.Log;
 
 class Card implements Parcelable {
     private static final String TAG = "Card";
-    protected static final String SUSPECT = "SUSPECT";
-    protected static final String WEAPON = "WEAPON";
-    protected static final String ROOM = "ROOM";
-    protected static final String NONE = "NONE";
+    static final String SUSPECT = "SUSPECT";
+    static final String WEAPON = "WEAPON";
+    static final String ROOM = "ROOM";
+    static final String NONE = "NONE";
+    static final String ERROR = "ERROR";
+
+    static final int NONE_ID = -1;
+    static final int ERROR_ID = -2;
 
     private String cardType;
     private int id;
@@ -34,14 +38,17 @@ class Card implements Parcelable {
     }
 
     private static String getCardTypeFromId(int id) {
-        if (id < SUSPECTS.length) {
+        if ((id >= 0) && (id < SUSPECTS.length)) {
             return SUSPECT;
-        } else if (id < (SUSPECTS.length + WEAPONS.length)) {
+        } else if ((id >= SUSPECTS.length) && (id < (SUSPECTS.length + WEAPONS.length))) {
             return WEAPON;
-        } else if (id < (getCardCount())) {
+        } else if ((id >= SUSPECTS.length + WEAPONS.length) && (id < getCardCount())) {
             return ROOM;
-        } else {
+        } else if (id == NONE_ID) {
             return NONE;
+        } else {
+            Log.e(TAG, "getCardTypeFromId: Unknown card id: " + id);
+            return ERROR;
         }
     }
 
@@ -54,10 +61,10 @@ class Card implements Parcelable {
             case ROOM:
                 return position + SUSPECTS.length + WEAPONS.length;
             case NONE:
-                return -1;
+                return NONE_ID;
             default:
                 Log.e(TAG, "getIdFromTypeAndPos: Unknown card type:" + cardType);
-                return -2;
+                return ERROR_ID;
         }
     }
 
