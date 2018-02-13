@@ -44,6 +44,16 @@ public class Game implements Parcelable {
         return players.size() >= 2;
     }
 
+    void handleQuestion(Player askPlayer, Player answerPlayer, Card suspect, Card weapon, Card room, Card answer) {
+        answerPlayer.addCard(answer);
+        askPlayer.handleAnswer(answerPlayer, suspect, weapon, room, answer);
+
+        //TODO: remove once knowledge debugging is finished
+        for (Player player : players) {
+            player.printDebugKnowledge();
+        }
+    }
+
     public static final Creator<Game> CREATOR = new Creator<Game>() {
         @Override
         public Game createFromParcel(Parcel in) {

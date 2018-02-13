@@ -19,6 +19,12 @@ class Card implements Parcelable {
     static final int NONE_ID = -1;
     static final int ERROR_ID = -2;
 
+    static final int KNOWLEDGE_UNKNOWN = 0;
+    static final int KNOWLEDGE_AVOIDED = 1;
+    static final int KNOWLEDGE_POSSIBLY_GUILTY = 2;
+    static final int KNOWLEDGE_GUILTY = 3;
+    static final int KNOWLEDGE_NOT_GUILTY = 4;
+
     private String cardType;
     private int id;
 
@@ -88,8 +94,19 @@ class Card implements Parcelable {
         return cardType;
     }
 
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
+    static boolean isGameCard(int id) {
+        switch (getCardTypeFromId(id)) {
+            case SUSPECT:
+            case WEAPON:
+            case ROOM:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static int getGreatestKnowledge(int k1, int k2) {
+        return k1 >= k2 ? k1 : k2;
     }
 
     public int getId() {

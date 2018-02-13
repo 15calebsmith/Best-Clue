@@ -339,9 +339,8 @@ public class MainActivity extends AppCompatActivity {
                 .setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int answerCard) {
-                        Card answer = cardOptions.get(answerCard);
-                        //TODO: handle answer
-                        Log.d(TAG, "onClick: answer=" + answer.getCardName());
+                        final Card answer = cardOptions.get(answerCard);
+                        game.handleQuestion(askPlayer, answerPlayer, suspect, weapon, room, answer);
                     }
                 });
         builder.create().show();
