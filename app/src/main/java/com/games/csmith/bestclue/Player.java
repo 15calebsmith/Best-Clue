@@ -29,7 +29,26 @@ public class Player implements Parcelable {
         name = in.readString();
         numberOfCards = in.readInt();
         cards = in.createTypedArray(Card.CREATOR);
-        cardPlayerKnowledge = new SparseArray<>();
+        cardPlayerKnowledge = readCardPlayerKnowledge(in);
+        printDebugKnowledge();
+    }
+
+    private static SparseArray<HashMap<Player, Integer>> readCardPlayerKnowledge(Parcel in) {
+        int sparseSize = in.readInt();
+        SparseArray<HashMap<Player, Integer>> cardPlayerKnowledge = new SparseArray<>(sparseSize);
+        for (int i = 0; i < sparseSize; i++) {
+            int sparseKey = in.readInt();
+            int hashMapSize = in.readInt();
+            HashMap<Player, Integer> playerKnowledge = new HashMap<>(hashMapSize);
+            for (int j = 0; j < hashMapSize; j++) {
+                Player player = in.readTypedObject(Player.CREATOR);
+                int knowledge = in.readInt();
+                playerKnowledge.put(player, knowledge);
+            }
+            cardPlayerKnowledge.put(sparseKey, playerKnowledge);
+        }
+
+        return cardPlayerKnowledge;
     }
 
     void setNumberOfCards(int numberOfCards) {
@@ -112,6 +131,28 @@ public class Player implements Parcelable {
         dest.writeString(name);
         dest.writeInt(numberOfCards);
         dest.writeTypedArray(cards, 0);
+        writeCardPlayerKnowledge(dest, cardPlayerKnowledge);
+    }
+
+    private static void writeCardPlayerKnowledge(Parcel dest, SparseArray<HashMap<Player, Integer>> cardPlayerKnowledge) {
+        if (cardPlayerKnowledge == null) {
+            dest.writeInt(-1);
+        } else {
+            int size = cardPlayerKnowledge.size();
+            dest.writeInt(size);
+            for (int i = 0; i < size; i++) {
+                dest.writeInt(cardPlayerKnowledge.keyAt(i));
+                HashMap<Player, Integer> playerKnowledge = cardPlayerKnowledge.get(i);
+                if (playerKnowledge == null) {
+                    playerKnowledge = new HashMap<>();
+                }
+                dest.writeInt(playerKnowledge.size());
+                for (HashMap.Entry<Player, Integer> entry : playerKnowledge.entrySet()) {
+                    dest.writeTypedObject(entry.getKey(), 0);
+                    dest.writeInt(entry.getValue());
+                }
+            }
+        }
     }
 
     @Override
