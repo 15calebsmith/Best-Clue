@@ -1,5 +1,7 @@
 package com.games.csmith.bestclue;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,18 +12,44 @@ import java.util.ArrayList;
  */
 
 public class Game implements Parcelable {
+    private Context context;
     private ArrayList<Player> players;
+    private int gameState;
 
-    Game() {
-        players = new ArrayList<>();
+    static final String ACTION_GAME_STATE_CHANGED = "com.games.csmith.bestclue.ACTION_GAME_STATE_CHANGED";
+    static final int GAME_STATE_ADD_PLAYERS = 1;
+    static final int GAME_STATE_READY_TO_START = 2;
+    static final int GAME_STATE_PLAYING = 3;
+
+
+    Game(Context context) {
+        this.context = context.getApplicationContext();
+        this.players = new ArrayList<>();
+        setGameState(GAME_STATE_ADD_PLAYERS);
     }
 
     private Game(Parcel in) {
         in.readTypedList(players, Player.CREATOR);
+        gameState = in.readInt();
+    }
+
+    synchronized private void setGameState(int newState) {
+        if (gameState != newState) {
+            gameState = newState;
+            context.sendBroadcast(new Intent(ACTION_GAME_STATE_CHANGED));
+        }
+    }
+
+    synchronized int getGameState() {
+        return gameState;
     }
 
     void addPlayer(Player player) {
         players.add(player);
+
+        if (players.size() >= 2) {
+            setGameState(GAME_STATE_READY_TO_START);
+        }
     }
 
     ArrayList<Player> getPlayers() {
@@ -40,8 +68,33 @@ public class Game implements Parcelable {
         return ret;
     }
 
-    boolean hasEnoughPlayersToStart() {
-        return players.size() >= 2;
+    void setPlayersCards(Player player, boolean[] checkedCards) {
+        player.setCards(checkedCards);
+        if (isGameReadyToStart()) {
+            setGameState(GAME_STATE_PLAYING);
+        }
+    }
+
+    void setPlayersNumberOfCards(Player player, int numberOfCards) {
+        player.setNumberOfCards(numberOfCards);
+        if (isGameReadyToStart()) {
+            setGameState(GAME_STATE_PLAYING);
+        }
+    }
+
+    private boolean isGameReadyToStart() {
+        boolean retval = true;
+        for (Player player : players) {
+            if (player.getNumberOfCards() == 0) {
+                retval = false;
+            }
+        }
+        return retval;
+    }
+
+    void reset() {
+        players.clear();
+        setGameState(GAME_STATE_ADD_PLAYERS);
     }
 
     void handleQuestion(Player askPlayer, Player answerPlayer, Card suspect, Card weapon, Card room, Card answer) {
@@ -74,5 +127,6 @@ public class Game implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(players);
+        dest.writeInt(gameState);
     }
 }

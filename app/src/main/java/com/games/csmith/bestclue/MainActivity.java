@@ -1,5 +1,9 @@
 package com.games.csmith.bestclue;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.content.DialogInterface;
@@ -18,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Game game;
     private static final String GAME_KEY = "GAME_KEY";
+
+    BroadcastReceiver gameStateBroadcastReceiver = new GameStateBroadcastReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +52,24 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setOffscreenPageLimit(7);
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
-        newGame();
 
-        game = new Game();
+        if (game == null) {
+            game = new Game(getApplicationContext());
+            newGame();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(gameStateBroadcastReceiver, new IntentFilter(Game.ACTION_GAME_STATE_CHANGED));
+        handleGameStateChange(game.getGameState());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(gameStateBroadcastReceiver);
     }
 
     @Override
@@ -90,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void newGame() {
-        game = new Game();
+        game.reset();
         tabsArrayList.clear();
         tabsArrayList.add(getString(R.string.main_tab_title));
         viewPager.getAdapter().notifyDataSetChanged();
@@ -126,20 +148,10 @@ public class MainActivity extends AppCompatActivity {
             game.addPlayer(player);
             tabsArrayList.add(playerName);
             viewPager.getAdapter().notifyDataSetChanged();
-            if (game.hasEnoughPlayersToStart()) {
-                enableStartGameButton();
-            }
             Toast.makeText(getApplicationContext(), playerName + " is now playing.", Toast.LENGTH_SHORT).show();
         }
         else {
             Toast.makeText(getApplicationContext(), playerName + " is already playing!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void enableStartGameButton() {
-        Button startGameButton = findViewById(R.id.start_game_button);
-        if (startGameButton != null) {
-            startGameButton.setEnabled(true);
         }
     }
 
@@ -178,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mainPlayer.setCards(checkedCards);
+                        game.setPlayersCards(mainPlayer, checkedCards);
                         Player otherPlayer = otherPlayers.get(0);
                         otherPlayers.remove(otherPlayer);
                         showSetOtherPlayersNumberOfCards(otherPlayer, otherPlayers);
@@ -204,13 +216,11 @@ public class MainActivity extends AppCompatActivity {
                         if (playerNameEditText != null) {
                             String numberOfCardsText = playerNameEditText.getText().toString().trim();
                             int numberOfCards = Integer.parseInt(numberOfCardsText);
-                            otherPlayer.setNumberOfCards(numberOfCards);
+                            game.setPlayersNumberOfCards(otherPlayer, numberOfCards);
                             otherPlayers.remove(otherPlayer);
                             if (otherPlayers.size() > 0) {
                                 Player otherPlayer = otherPlayers.get(0);
                                 showSetOtherPlayersNumberOfCards(otherPlayer, otherPlayers);
-                            } else {
-                                startGame();
                             }
                         }
                     }
@@ -218,30 +228,105 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void startGame() {
-        Log.d(TAG, "startGame: ");
+    private void handleGameStateChange(int gameState) {
+        switch (gameState) {
+            case Game.GAME_STATE_ADD_PLAYERS:
+                hidePlayingButtons();
+                hidePredictionsList();
+                showSetupButtons();
+                disableStartGameButton();
+                break;
+            case Game.GAME_STATE_READY_TO_START:
+                hidePlayingButtons();
+                hidePredictionsList();
+                showSetupButtons();
+                enableStartGameButton();
+                break;
+            case Game.GAME_STATE_PLAYING:
+                hideSetupButtons();
+                showPlayingButtons();
+                showPredictionsList();
+                break;
+            default:
+                Log.e(TAG, "onReceive: Unknown game state: " + gameState);
+                break;
+        }
+    }
+
+    private void showSetupButtons() {
         Button addPlayerButton = findViewById(R.id.add_player_button);
-        addPlayerButton.setVisibility(View.GONE);
+        if (addPlayerButton != null) {
+            addPlayerButton.setVisibility(View.VISIBLE);
+        }
         Button startGameButton = findViewById(R.id.start_game_button);
-        startGameButton.setVisibility(View.GONE);
+        if (startGameButton != null) {
+            startGameButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideSetupButtons() {
+        Button addPlayerButton = findViewById(R.id.add_player_button);
+        if (addPlayerButton != null) {
+            addPlayerButton.setVisibility(View.GONE);
+        }
+        Button startGameButton = findViewById(R.id.start_game_button);
+        if (startGameButton != null) {
+            startGameButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void enableStartGameButton() {
+        Button startGameButton = findViewById(R.id.start_game_button);
+        if (startGameButton != null) {
+            startGameButton.setEnabled(true);
+        }
+    }
+
+    private void disableStartGameButton() {
+        Button startGameButton = findViewById(R.id.start_game_button);
+        if (startGameButton != null) {
+            startGameButton.setEnabled(false);
+        }
+    }
+
+    private void showPlayingButtons() {
         Button endGameButton = findViewById(R.id.end_game_button);
-        endGameButton.setVisibility(View.VISIBLE);
+        if (endGameButton != null) {
+            endGameButton.setVisibility(View.VISIBLE);
+        }
         Button newTurnButton = findViewById(R.id.new_turn_button);
-        newTurnButton.setVisibility(View.VISIBLE);
+        if (newTurnButton != null) {
+            newTurnButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hidePlayingButtons() {
+        Button endGameButton = findViewById(R.id.end_game_button);
+        if (endGameButton != null) {
+            endGameButton.setVisibility(View.GONE);
+        }
+        Button newTurnButton = findViewById(R.id.new_turn_button);
+        if (newTurnButton != null) {
+            newTurnButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void showPredictionsList() {
+        ListView predictionsList = findViewById(R.id.prediction_list_view);
+        if (predictionsList != null) {
+            predictionsList.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hidePredictionsList() {
+        ListView predictionsList = findViewById(R.id.prediction_list_view);
+        if (predictionsList != null) {
+            predictionsList.setVisibility(View.GONE);
+        }
     }
 
     public void onEndGameButtonOnClick(View view) {
         Log.d(TAG, "onEndGameButtonOnClick: ");
-        newGame();
-        Button addPlayerButton = findViewById(R.id.add_player_button);
-        addPlayerButton.setVisibility(View.VISIBLE);
-        Button startGameButton = findViewById(R.id.start_game_button);
-        startGameButton.setVisibility(View.VISIBLE);
-        startGameButton.setEnabled(false);
-        Button engGameButton = findViewById(R.id.end_game_button);
-        engGameButton.setVisibility(View.GONE);
-        Button newTurnButton = findViewById(R.id.new_turn_button);
-        newTurnButton.setVisibility(View.GONE);
     }
 
     public void onNewTurnButtonOnClick(View view) {
@@ -344,6 +429,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         builder.create().show();
+    }
+
+    private class GameStateBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int gameState = game.getGameState();
+            handleGameStateChange(gameState);
+        }
     }
 
     private class BestCluePagerAdapter extends FragmentPagerAdapter {

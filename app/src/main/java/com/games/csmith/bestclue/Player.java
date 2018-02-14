@@ -55,6 +55,10 @@ public class Player implements Parcelable {
         this.numberOfCards = numberOfCards;
     }
 
+    int getNumberOfCards() {
+        return numberOfCards;
+    }
+
     void setCards(boolean[] hasCard) {
         clearCards();
         int numberOfCards = 0;
