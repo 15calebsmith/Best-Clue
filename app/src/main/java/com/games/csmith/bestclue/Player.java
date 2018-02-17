@@ -72,7 +72,7 @@ public class Player implements Parcelable {
         setNumberOfCards(numberOfCards);
     }
 
-    void clearCards() {
+    private void clearCards() {
         setNumberOfCards(0);
         cards = new Card[Card.getCardCount()];
         cardPlayerKnowledge.clear();
@@ -103,10 +103,12 @@ public class Player implements Parcelable {
     }
 
     private void addCardKnowledge(Player player, Card card, int cardKnowledge) {
-        if ((cardPlayerKnowledge.get(card.getId()) == null) || (cardPlayerKnowledge.get(card.getId()).get(player) == null)) {
+        if (cardPlayerKnowledge.get(card.getId()) == null) {
             HashMap<Player, Integer> playerIntegerHashMap = new HashMap<>();
             playerIntegerHashMap.put(player, cardKnowledge);
             cardPlayerKnowledge.put(card.getId(), playerIntegerHashMap);
+        } else if (cardPlayerKnowledge.get(card.getId()).get(player) == null) {
+            cardPlayerKnowledge.get(card.getId()).put(player, cardKnowledge);
         } else {
             int currentAnswerKnowledge = cardPlayerKnowledge.get(card.getId()).get(player);
             cardPlayerKnowledge.get(card.getId()).put(player, Card.getGreatestKnowledge(currentAnswerKnowledge, cardKnowledge));
