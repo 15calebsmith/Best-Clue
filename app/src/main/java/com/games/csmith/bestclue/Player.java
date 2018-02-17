@@ -161,6 +161,23 @@ public class Player implements Parcelable {
         }
     }
 
+    int[] getCardKnowledge() {
+        int[] knowledge = new int[Card.getCardCount()];
+        for (int i = 0; i < knowledge.length; i++) {
+            HashMap<Player, Integer> playerKnowledgeMap = cardPlayerKnowledge.get(i);
+            if (playerKnowledgeMap == null) {
+                playerKnowledgeMap = new HashMap<>();
+            }
+            int bestKnowledge = Card.KNOWLEDGE_UNKNOWN;
+            for (int playerKnowledge : playerKnowledgeMap.values()) {
+                bestKnowledge = Card.getGreatestKnowledge(bestKnowledge, playerKnowledge);
+            }
+            knowledge[i] = bestKnowledge;
+        }
+
+        return knowledge;
+    }
+
     @Override
     public int describeContents() {
         return 0;

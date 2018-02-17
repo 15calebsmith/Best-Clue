@@ -17,6 +17,7 @@ public class Game implements Parcelable {
     private int gameState;
 
     static final String ACTION_GAME_STATE_CHANGED = "com.games.csmith.bestclue.ACTION_GAME_STATE_CHANGED";
+    static final String ACTION_UPDATE_PREDICTIONS = "com.games.csmith.bestclue.ACTION_UPDATE_PREDICTIONS";
     static final int GAME_STATE_ADD_PLAYERS = 1;
     static final int GAME_STATE_READY_TO_START = 2;
     static final int GAME_STATE_PLAYING = 3;
@@ -37,6 +38,7 @@ public class Game implements Parcelable {
         if (gameState != newState) {
             gameState = newState;
             context.sendBroadcast(new Intent(ACTION_GAME_STATE_CHANGED));
+            context.sendBroadcast(new Intent(ACTION_UPDATE_PREDICTIONS));
         }
     }
 
@@ -100,11 +102,26 @@ public class Game implements Parcelable {
     void handleQuestion(Player askPlayer, Player answerPlayer, Card suspect, Card weapon, Card room, Card answer) {
         answerPlayer.addCard(answer);
         askPlayer.handleAnswer(answerPlayer, suspect, weapon, room, answer);
+        context.sendBroadcast(new Intent(ACTION_UPDATE_PREDICTIONS));
 
         //TODO: remove once knowledge debugging is finished
         for (Player player : players) {
             player.printDebugKnowledge();
         }
+    }
+
+    int[] generatePredictions() {
+        int[] totalKnowledge = new int[Card.getCardCount()];
+        for (Player player : players) {
+            int[] playerCardKnowledge = player.getCardKnowledge();
+            for (int i = 0; i < playerCardKnowledge.length; i++) {
+                int cardKnowledge = playerCardKnowledge[i];
+                int currentKnowledge = totalKnowledge[i];
+                totalKnowledge[i] = Card.getGreatestKnowledge(currentKnowledge, cardKnowledge);
+            }
+        }
+
+        return totalKnowledge;
     }
 
     public static final Creator<Game> CREATOR = new Creator<Game>() {

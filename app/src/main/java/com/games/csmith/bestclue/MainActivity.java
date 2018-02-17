@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -36,7 +37,13 @@ public class MainActivity extends AppCompatActivity {
     private Game game;
     private static final String GAME_KEY = "GAME_KEY";
 
-    BroadcastReceiver gameStateBroadcastReceiver = new GameStateBroadcastReceiver();
+    private BroadcastReceiver gameStateBroadcastReceiver = new GameStateBroadcastReceiver();
+    private BroadcastReceiver updatePredictionsBroadcastReceiver = new UpdatePredictionsBroadcastReceiver();
+
+    ArrayList<Predictions.Prediction> predictions = new ArrayList<>();;
+    private static final String PREDICTIONS_KEY = "PREDICTIONS_KEY";
+
+    ArrayAdapter predictionsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +70,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         registerReceiver(gameStateBroadcastReceiver, new IntentFilter(Game.ACTION_GAME_STATE_CHANGED));
+        registerReceiver(updatePredictionsBroadcastReceiver, new IntentFilter(Game.ACTION_UPDATE_PREDICTIONS));
         handleGameStateChange(game.getGameState());
+        updatePredictions();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(gameStateBroadcastReceiver);
+        unregisterReceiver(updatePredictionsBroadcastReceiver);
     }
 
     @Override
@@ -77,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onSaveInstanceState: ");
         savedInstanceState.putParcelable(GAME_KEY, game);
         savedInstanceState.putStringArrayList(TABS_ARRAY_LIST_KEY, tabsArrayList);
+        savedInstanceState.putParcelableArrayList(PREDICTIONS_KEY, predictions);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -85,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onRestoreInstanceState: ");
         super.onRestoreInstanceState(savedInstanceState);
         tabsArrayList = savedInstanceState.getStringArrayList(TABS_ARRAY_LIST_KEY);
+        predictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_KEY);
         viewPager.getAdapter().notifyDataSetChanged();
         game = savedInstanceState.getParcelable(GAME_KEY);
     }
@@ -431,12 +443,34 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private class GameStateBroadcastReceiver extends BroadcastReceiver {
+    private void updatePredictions() {
+        Log.d(TAG, "updatePredictions");
+        ListView predictionsView = findViewById(R.id.prediction_list_view);
+        if (predictionsAdapter == null) {
+            predictionsAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, predictions);
+        }
 
+        if ((predictionsView != null) && (predictionsView.getAdapter() == null)) {
+            predictionsView.setAdapter(predictionsAdapter);
+        }
+
+        predictions.clear();
+        predictions.addAll(Predictions.generatePredictions(game.generatePredictions()));
+        predictionsAdapter.notifyDataSetChanged();
+    }
+
+    private class GameStateBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             int gameState = game.getGameState();
             handleGameStateChange(gameState);
+        }
+    }
+
+    private class UpdatePredictionsBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updatePredictions();
         }
     }
 

@@ -43,7 +43,7 @@ class Card implements Parcelable {
         id = in.readInt();
     }
 
-    private static String getCardTypeFromId(int id) {
+    static String getCardTypeFromId(int id) {
         if ((id >= 0) && (id < SUSPECTS.length)) {
             return SUSPECT;
         } else if ((id >= SUSPECTS.length) && (id < (SUSPECTS.length + WEAPONS.length))) {
@@ -55,6 +55,22 @@ class Card implements Parcelable {
         } else {
             Log.e(TAG, "getCardTypeFromId: Unknown card id: " + id);
             return ERROR;
+        }
+    }
+
+    static int getCardPosFromTypeAndId(String cardType, int id) {
+        switch (cardType) {
+            case SUSPECT:
+                return id;
+            case WEAPON:
+                return id - SUSPECTS.length;
+            case ROOM:
+                return id - SUSPECTS.length - WEAPONS.length;
+            case NONE:
+                return NONE_ID;
+            default:
+                Log.e(TAG, "getCardPosFromTypeAndId: Unknown card type:" + cardType);
+                return ERROR_ID;
         }
     }
 
