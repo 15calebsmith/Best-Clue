@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Pair;
+import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -40,15 +40,15 @@ class Predictions {
             }
         }
 
-        HashMap<Integer, Double> suspiciousSuspects = getSuspicious(allSuspects);
-        HashMap<Integer, Double> suspiciousWeapons = getSuspicious(allWeapons);
-        HashMap<Integer, Double> suspiciousRooms = getSuspicious(allRooms);
+        SparseArray<Double> suspiciousSuspects = getSuspicious(allSuspects);
+        SparseArray<Double> suspiciousWeapons = getSuspicious(allWeapons);
+        SparseArray<Double> suspiciousRooms = getSuspicious(allRooms);
 
         return generatePredictionCombinations(suspiciousSuspects, suspiciousWeapons, suspiciousRooms);
     }
 
-    private static HashMap<Integer, Double> getSuspicious(Integer[] cards) {
-        HashMap<Integer, Double> suspicious = new HashMap<>();
+    private static SparseArray<Double> getSuspicious(Integer[] cards) {
+        SparseArray<Double> suspicious = new SparseArray<>();
         double denominator = 0;
         for (int i = 0; i < cards.length; i++) {
             int knowledge = cards[i];
@@ -82,15 +82,15 @@ class Predictions {
         return suspicious;
     }
 
-    private static ArrayList<Prediction> generatePredictionCombinations(HashMap<Integer, Double> suspects, HashMap<Integer, Double> weapons, HashMap<Integer, Double> rooms) {
+    private static ArrayList<Prediction> generatePredictionCombinations(SparseArray<Double> suspects, SparseArray<Double> weapons, SparseArray<Double> rooms) {
         ArrayList<Prediction> predictions = new ArrayList<>();
 
-        for (Integer s : suspects.keySet()) {
-            for (Integer w : weapons.keySet()) {
-                for (Integer r : rooms.keySet()) {
-                    Pair<Card, Double> suspect = new Pair<>(new Card(Card.SUSPECT, s), suspects.get(s));
-                    Pair<Card, Double> weapon = new Pair<>(new Card(Card.WEAPON, w), weapons.get(w));
-                    Pair<Card, Double> room = new Pair<>(new Card (Card.ROOM, r), rooms.get(r));
+        for (int i = 0; i < suspects.size(); i++) {
+            for (int j = 0; j < weapons.size(); j++) {
+                for (int k = 0; k < rooms.size(); k++) {
+                    Pair<Card, Double> suspect = new Pair<>(new Card(Card.SUSPECT, suspects.keyAt(i)), suspects.valueAt(i));
+                    Pair<Card, Double> weapon = new Pair<>(new Card(Card.WEAPON, weapons.keyAt(j)), weapons.valueAt(j));
+                    Pair<Card, Double> room = new Pair<>(new Card (Card.ROOM, rooms.keyAt(k)), rooms.valueAt(k));
                     predictions.add(new Prediction(suspect, weapon, room));
                 }
             }
@@ -146,13 +146,7 @@ class Predictions {
 
         @Override
         public int compareTo(@NonNull Prediction o) {
-            if (this.probability > o.probability) {
-                return -1;
-            } else if (this.probability < o.probability) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return Double.compare(o.probability, this.probability);
         }
 
         @Override
