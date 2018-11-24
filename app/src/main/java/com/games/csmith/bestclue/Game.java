@@ -99,6 +99,12 @@ public class Game implements Parcelable {
         setGameState(GAME_STATE_ADD_PLAYERS);
     }
 
+    void initializePlayerPredictions() {
+        for (Player player : getPlayers()) {
+            player.initializeKnowledge(getPlayers());
+        }
+    }
+
     void handleQuestion(Player askPlayer, Player answerPlayer, Card suspect, Card weapon, Card room, Card answer) {
         answerPlayer.addCard(answer);
         askPlayer.handleAnswer(answerPlayer, suspect, weapon, room, answer);

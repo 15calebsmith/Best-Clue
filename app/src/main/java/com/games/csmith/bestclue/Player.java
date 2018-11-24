@@ -5,7 +5,9 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Created by csmith on 2/3/18.
@@ -60,7 +62,7 @@ public class Player implements Parcelable {
     }
 
     void setCards(boolean[] hasCard) {
-        clearCards();
+        cards = new Card[Card.getCardCount()];
         int numberOfCards = 0;
         for (int i = 0; i < hasCard.length; i++) {
             if (hasCard[i]) {
@@ -70,12 +72,6 @@ public class Player implements Parcelable {
         }
 
         setNumberOfCards(numberOfCards);
-    }
-
-    private void clearCards() {
-        setNumberOfCards(0);
-        cards = new Card[Card.getCardCount()];
-        cardPlayerKnowledge.clear();
     }
 
     String getName() {
@@ -89,11 +85,30 @@ public class Player implements Parcelable {
         }
     }
 
+    SparseArray<HashMap<Player, Integer>> getCardPlayerKnowledge() {
+        return cardPlayerKnowledge;
+    }
+
+    void initializeKnowledge(ArrayList<Player> players) {
+        for (int i = 0; i < Card.getCardCount(); i++) {
+            Card card = new Card(i);
+            for (Player player : players) {
+                HashMap<Player, Integer> playerIntegerHashMap = new HashMap<>();
+                playerIntegerHashMap.put(player, Card.KNOWLEDGE_UNKNOWN);
+                cardPlayerKnowledge.put(card.getId(), playerIntegerHashMap);
+            }
+        }
+    }
+
     void handleAnswer(Player answerPlayer, Card suspect, Card weapon, Card room, Card answer) {
         if (answer.getCardType().equals(Card.NONE)) {
             addCardKnowledge(answerPlayer, suspect, Card.KNOWLEDGE_POSSIBLY_GUILTY);
             addCardKnowledge(answerPlayer, weapon, Card.KNOWLEDGE_POSSIBLY_GUILTY);
             addCardKnowledge(answerPlayer, room, Card.KNOWLEDGE_POSSIBLY_GUILTY);
+
+            checkIfGuilty(suspect);
+            checkIfGuilty(weapon);
+            checkIfGuilty(room);
         } else {
             addCardKnowledge(answerPlayer, suspect, Card.KNOWLEDGE_AVOIDED);
             addCardKnowledge(answerPlayer, weapon, Card.KNOWLEDGE_AVOIDED);
@@ -112,6 +127,20 @@ public class Player implements Parcelable {
         } else {
             int currentAnswerKnowledge = cardPlayerKnowledge.get(card.getId()).get(player);
             cardPlayerKnowledge.get(card.getId()).put(player, Card.getGreatestKnowledge(currentAnswerKnowledge, cardKnowledge));
+        }
+    }
+
+    private void checkIfGuilty(Card card) {
+        boolean guilty = true;
+        HashMap<Player, Integer> playerKnowledge = cardPlayerKnowledge.get(card.getId());
+        for (Player player : playerKnowledge.keySet()) {
+            if (!(playerKnowledge.get(player).equals(Card.KNOWLEDGE_POSSIBLY_GUILTY) || (playerKnowledge.get(player).equals(Card.KNOWLEDGE_GUILTY)))) {
+                guilty = false;
+            }
+        }
+
+        if (guilty) {
+            addCardKnowledge(this, card, Card.KNOWLEDGE_GUILTY);
         }
     }
 

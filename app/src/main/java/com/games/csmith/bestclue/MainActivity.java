@@ -132,7 +132,44 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddPlayerButtonOnClick(View view) {
         Log.d(TAG, "onAddPlayerButtonOnClick: ");
-        showAddPlayerDialog();
+
+        boolean test = true;
+        if (!test) {
+            showAddPlayerDialog();
+        } else {
+
+            addPlayer("qwerty");
+            addPlayer("asdf");
+            addPlayer("zxcv");
+            game.initializePlayerPredictions();
+            game.setPlayersCards(game.getPlayers().get(0), new boolean[]{
+                    true,
+                    true,
+                    true,
+                    true,
+                    true,
+                    false,
+
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+            });
+            game.setPlayersNumberOfCards(game.getPlayers().get(1), 6);
+            game.setPlayersNumberOfCards(game.getPlayers().get(2), 6);
+        }
     }
 
     private void showAddPlayerDialog() {
@@ -169,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onStartGameButtonOnClick(View view) {
         Log.d(TAG, "onStartGameButtonOnClick: ");
+        game.initializePlayerPredictions();
         showSelectMainPlayerDialog();
     }
 
@@ -185,8 +223,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Player mainPlayer = players.get(which);
-                        ArrayList<Player> otherPlayers = new ArrayList<>();
-                        otherPlayers.addAll(players);
+                        ArrayList<Player> otherPlayers = new ArrayList<>(players);
                         otherPlayers.remove(mainPlayer);
                         showSelectMainPlayersCardsDialog(mainPlayer, otherPlayers);
                     }
@@ -224,9 +261,9 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        EditText playerNameEditText = (EditText) ((AlertDialog) dialog).findViewById(R.id.number_of_cards_edit_text);
-                        if (playerNameEditText != null) {
-                            String numberOfCardsText = playerNameEditText.getText().toString().trim();
+                        EditText playerNumberOfCardsEditText = (EditText) ((AlertDialog) dialog).findViewById(R.id.number_of_cards_edit_text);
+                        if (playerNumberOfCardsEditText != null) {
+                            String numberOfCardsText = playerNumberOfCardsEditText.getText().toString().trim();
                             int numberOfCards = Integer.parseInt(numberOfCardsText);
                             game.setPlayersNumberOfCards(otherPlayer, numberOfCards);
                             otherPlayers.remove(otherPlayer);
