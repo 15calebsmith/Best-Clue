@@ -2,48 +2,38 @@ package com.games.csmith.bestclue;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.content.DialogInterface;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private ArrayList<String> tabsArrayList = new ArrayList<>();
-    private static final String TABS_ARRAY_LIST_KEY = "TABS_ARRAY_LIST_KEY";
-    ViewPager viewPager;
-
-    private Game game;
     private static final String GAME_KEY = "GAME_KEY";
-
+    private static final String PREDICTIONS_KEY = "PREDICTIONS_KEY";
     private BroadcastReceiver gameStateBroadcastReceiver = new GameStateBroadcastReceiver();
     private BroadcastReceiver updatePredictionsBroadcastReceiver = new UpdatePredictionsBroadcastReceiver();
+    private ViewPager viewPager;
+    private BestCluePagerAdapter bestCluePagerAdapter;
+    private ArrayList<Predictions.Prediction> predictions = new ArrayList<>();
+    private Game game;
 
-    ArrayList<Predictions.Prediction> predictions = new ArrayList<>();;
-    private static final String PREDICTIONS_KEY = "PREDICTIONS_KEY";
-
-    ArrayAdapter predictionsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +44,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (bestCluePagerAdapter == null) {
+            bestCluePagerAdapter = new BestCluePagerAdapter(getSupportFragmentManager());
+        }
+
         viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(new BestCluePagerAdapter(getSupportFragmentManager()));
+        viewPager.setAdapter(bestCluePagerAdapter);
         viewPager.setOffscreenPageLimit(7);
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
-        if (game == null) {
+        if (savedInstanceState == null && game == null) {
             game = new Game(getApplicationContext());
             newGame();
         }
@@ -71,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         registerReceiver(gameStateBroadcastReceiver, new IntentFilter(Game.ACTION_GAME_STATE_CHANGED));
         registerReceiver(updatePredictionsBroadcastReceiver, new IntentFilter(Game.ACTION_UPDATE_PREDICTIONS));
-        handleGameStateChange(game.getGameState());
-        updatePredictions();
     }
 
     @Override
@@ -86,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "onSaveInstanceState: ");
         savedInstanceState.putParcelable(GAME_KEY, game);
-        savedInstanceState.putStringArrayList(TABS_ARRAY_LIST_KEY, tabsArrayList);
         savedInstanceState.putParcelableArrayList(PREDICTIONS_KEY, predictions);
+        bestCluePagerAdapter.saveFragments(savedInstanceState);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -95,10 +87,10 @@ public class MainActivity extends AppCompatActivity {
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "onRestoreInstanceState: ");
         super.onRestoreInstanceState(savedInstanceState);
-        tabsArrayList = savedInstanceState.getStringArrayList(TABS_ARRAY_LIST_KEY);
         predictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_KEY);
         viewPager.getAdapter().notifyDataSetChanged();
         game = savedInstanceState.getParcelable(GAME_KEY);
+        bestCluePagerAdapter.restoreFragments(savedInstanceState, game != null ? game.getGameState() : -1);
     }
 
     @Override
@@ -125,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void newGame() {
         game.reset();
-        tabsArrayList.clear();
-        tabsArrayList.add(getString(R.string.main_tab_title));
+        bestCluePagerAdapter.clearFragments();
+        bestCluePagerAdapter.addMainFragment();
         viewPager.getAdapter().notifyDataSetChanged();
     }
 
@@ -137,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         if (!test) {
             showAddPlayerDialog();
         } else {
-
             addPlayer("qwerty");
             addPlayer("asdf");
             addPlayer("zxcv");
@@ -195,11 +186,10 @@ public class MainActivity extends AppCompatActivity {
         if (!game.containsPlayer(playerName)) {
             Player player = new Player(playerName);
             game.addPlayer(player);
-            tabsArrayList.add(playerName);
+            bestCluePagerAdapter.addPlayerFragment(game.getPlayers().indexOf(player), player);
             viewPager.getAdapter().notifyDataSetChanged();
             Toast.makeText(getApplicationContext(), playerName + " is now playing.", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             Toast.makeText(getApplicationContext(), playerName + " is already playing!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -275,103 +265,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         builder.create().show();
-    }
-
-    private void handleGameStateChange(int gameState) {
-        switch (gameState) {
-            case Game.GAME_STATE_ADD_PLAYERS:
-                hidePlayingButtons();
-                hidePredictionsList();
-                showSetupButtons();
-                disableStartGameButton();
-                break;
-            case Game.GAME_STATE_READY_TO_START:
-                hidePlayingButtons();
-                hidePredictionsList();
-                showSetupButtons();
-                enableStartGameButton();
-                break;
-            case Game.GAME_STATE_PLAYING:
-                hideSetupButtons();
-                showPlayingButtons();
-                showPredictionsList();
-                break;
-            default:
-                Log.e(TAG, "onReceive: Unknown game state: " + gameState);
-                break;
-        }
-    }
-
-    private void showSetupButtons() {
-        Button addPlayerButton = findViewById(R.id.add_player_button);
-        if (addPlayerButton != null) {
-            addPlayerButton.setVisibility(View.VISIBLE);
-        }
-        Button startGameButton = findViewById(R.id.start_game_button);
-        if (startGameButton != null) {
-            startGameButton.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideSetupButtons() {
-        Button addPlayerButton = findViewById(R.id.add_player_button);
-        if (addPlayerButton != null) {
-            addPlayerButton.setVisibility(View.GONE);
-        }
-        Button startGameButton = findViewById(R.id.start_game_button);
-        if (startGameButton != null) {
-            startGameButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void enableStartGameButton() {
-        Button startGameButton = findViewById(R.id.start_game_button);
-        if (startGameButton != null) {
-            startGameButton.setEnabled(true);
-        }
-    }
-
-    private void disableStartGameButton() {
-        Button startGameButton = findViewById(R.id.start_game_button);
-        if (startGameButton != null) {
-            startGameButton.setEnabled(false);
-        }
-    }
-
-    private void showPlayingButtons() {
-        Button endGameButton = findViewById(R.id.end_game_button);
-        if (endGameButton != null) {
-            endGameButton.setVisibility(View.VISIBLE);
-        }
-        Button newTurnButton = findViewById(R.id.new_turn_button);
-        if (newTurnButton != null) {
-            newTurnButton.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hidePlayingButtons() {
-        Button endGameButton = findViewById(R.id.end_game_button);
-        if (endGameButton != null) {
-            endGameButton.setVisibility(View.GONE);
-        }
-        Button newTurnButton = findViewById(R.id.new_turn_button);
-        if (newTurnButton != null) {
-            newTurnButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void showPredictionsList() {
-        ListView predictionsList = findViewById(R.id.prediction_list_view);
-        if (predictionsList != null) {
-            predictionsList.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hidePredictionsList() {
-        ListView predictionsList = findViewById(R.id.prediction_list_view);
-        if (predictionsList != null) {
-            predictionsList.setVisibility(View.GONE);
-        }
     }
 
     public void onEndGameButtonOnClick(View view) {
@@ -480,38 +373,24 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void updatePredictions() {
-        Log.d(TAG, "updatePredictions");
-        ListView predictionsView = findViewById(R.id.prediction_list_view);
-        if (predictionsAdapter == null) {
-            predictionsAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, predictions);
-        }
-
-        if ((predictionsView != null) && (predictionsView.getAdapter() == null)) {
-            predictionsView.setAdapter(predictionsAdapter);
-        }
-
-        predictions.clear();
-        predictions.addAll(Predictions.generatePredictions(game.generatePredictions()));
-        predictionsAdapter.notifyDataSetChanged();
-    }
-
     private class GameStateBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int gameState = game.getGameState();
-            handleGameStateChange(gameState);
+            bestCluePagerAdapter.handleGameStateChange(game.getGameState());
         }
     }
 
     private class UpdatePredictionsBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updatePredictions();
+            bestCluePagerAdapter.updatePredictions();
         }
     }
 
     private class BestCluePagerAdapter extends FragmentPagerAdapter {
+        private static final String TAG = "BestCluePagerAdapter";
+        private static final String FRAGMENTS_SIZE_KEY = "FRAGMENTS_SIZE_KEY";
+        private ArrayList<BestClueFragment> fragments = new ArrayList<>();
 
         BestCluePagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
@@ -519,22 +398,83 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 0) {
-                return MainFragment.newInstance(position + 1);
-            } else {
-                return PlayerFragment.newInstance(position + 1);
+            if (getCount() <= position) {
+                if (position == 0) {
+                    addMainFragment();
+                } else {
+                    addPlayerFragment(position, game.getPlayers().get(position - 1));
+                }
             }
+            return fragments.get(position);
+        }
+
+        void saveFragments(Bundle bundle) {
+            bundle.putInt(FRAGMENTS_SIZE_KEY, fragments.size());
+            for (int i = 0; i < fragments.size(); i++) {
+                getSupportFragmentManager().putFragment(bundle, "Fragment" + String.valueOf(i), fragments.get(i));
+            }
+        }
+
+        void restoreFragments(Bundle bundle, int gameState) {
+            if (bundle.containsKey(FRAGMENTS_SIZE_KEY)) {
+                int fragmentsSize = bundle.getInt(FRAGMENTS_SIZE_KEY);
+                for (int i = 0; i < fragmentsSize; i++) {
+                    addFragment(i, (BestClueFragment) getSupportFragmentManager().getFragment(bundle, "Fragment" + String.valueOf(i)));
+                }
+            }
+            handleGameStateChange(gameState);
+            updatePredictions();
         }
 
         @Override
         public int getCount() {
-            return tabsArrayList.size();
+            return fragments.size();
         }
-
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return tabsArrayList.get(position);
+            return fragments.get(position).getFragmentTitle();
         }
-  }
+
+        void addMainFragment() {
+            int mainFragmentIndex = 0;
+            MainFragment mainFragment = MainFragment.newInstance(game.getGameState(), getString(R.string.main_tab_title), predictions);
+            addFragment(mainFragmentIndex, mainFragment);
+        }
+
+        void addPlayerFragment(int index, Player player) {
+            int playerFragmentIndex = ++index;
+            PlayerFragment playerFragment = PlayerFragment.newInstance(game.getGameState(), player);
+            addFragment(playerFragmentIndex, playerFragment);
+        }
+
+        private void addFragment(int index, BestClueFragment fragment) {
+            if (fragments.size() >= (index + 1)) {
+
+                fragments.set(index, fragment);
+            } else {
+                fragments.add(index, fragment);
+            }
+            notifyDataSetChanged();
+        }
+
+        void clearFragments() {
+            fragments.clear();
+            notifyDataSetChanged();
+        }
+
+        void handleGameStateChange(int gameState) {
+            Log.i(TAG, "handleGameStateChange: ");
+            for (BestClueFragment fragment : fragments) {
+                fragment.handleGameStateChange(gameState);
+            }
+        }
+
+        private void updatePredictions() {
+            Log.i(TAG, "updatePredictions: ");
+            for (BestClueFragment fragment : fragments) {
+                fragment.updateKnowledge(game);
+            }
+        }
+    }
 }
