@@ -23,4 +23,5 @@
     <string name="player_name_hint">Player Name</string>
     <string name="number_of_cards_hint">Number of Cards</string>
 
+    <string name="player_cards_screen_title">Cards</string>
 </resources>

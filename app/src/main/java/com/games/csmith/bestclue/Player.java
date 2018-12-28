@@ -6,8 +6,8 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Created by csmith on 2/3/18.
@@ -72,6 +72,20 @@ public class Player implements Parcelable {
         }
 
         setNumberOfCards(numberOfCards);
+    }
+
+    Card[] getCards() {
+        Card[] cards = new Card[numberOfCards];
+        Card unknownCard = new Card(Card.UNKNOWN_ID);
+        Arrays.fill(cards, unknownCard);
+        int index = 0;
+        for (Card card : this.cards) {
+            if (card != null) {
+                cards[index] = card;
+                ++index;
+            }
+        }
+        return cards;
     }
 
     String getName() {

@@ -14,10 +14,12 @@ class Card implements Parcelable {
     static final String WEAPON = "WEAPON";
     static final String ROOM = "ROOM";
     static final String NONE = "NONE";
-    static final String ERROR = "ERROR";
+    private static final String UNKNOWN = "UNKNOWN";
+    private static final String ERROR = "ERROR";
 
     static final int NONE_ID = -1;
-    static final int ERROR_ID = -2;
+    static final int UNKNOWN_ID = -2;
+    private static final int ERROR_ID = -3;
 
     static final int KNOWLEDGE_UNKNOWN = 0;
     static final int KNOWLEDGE_AVOIDED = 1;
@@ -38,7 +40,7 @@ class Card implements Parcelable {
         this.id = getIdFromTypeAndPos(cardType, position);
     }
 
-    Card(Parcel in) {
+    private Card(Parcel in) {
         cardType = in.readString();
         id = in.readInt();
     }
@@ -52,6 +54,8 @@ class Card implements Parcelable {
             return ROOM;
         } else if (id == NONE_ID) {
             return NONE;
+        } else if (id == UNKNOWN_ID) {
+            return UNKNOWN;
         } else {
             Log.e(TAG, "getCardTypeFromId: Unknown card id: " + id);
             return ERROR;
@@ -68,6 +72,8 @@ class Card implements Parcelable {
                 return id - SUSPECTS.length - WEAPONS.length;
             case NONE:
                 return NONE_ID;
+            case UNKNOWN:
+                return UNKNOWN_ID;
             default:
                 Log.e(TAG, "getCardPosFromTypeAndId: Unknown card type:" + cardType);
                 return ERROR_ID;
@@ -84,6 +90,8 @@ class Card implements Parcelable {
                 return position + SUSPECTS.length + WEAPONS.length;
             case NONE:
                 return NONE_ID;
+            case UNKNOWN:
+                return UNKNOWN_ID;
             default:
                 Log.e(TAG, "getIdFromTypeAndPos: Unknown card type:" + cardType);
                 return ERROR_ID;
@@ -100,13 +108,15 @@ class Card implements Parcelable {
                 return ROOMS[id - SUSPECTS.length - WEAPONS.length];
             case NONE:
                 return "None";
+            case UNKNOWN:
+                return "Unknown";
             default:
                 Log.e(TAG, "getCardName: Unknown card type:" + cardType);
                 return "Error";
         }
     }
 
-    public String getCardType() {
+    String getCardType() {
         return cardType;
     }
 
@@ -131,6 +141,11 @@ class Card implements Parcelable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return getCardName();
     }
 
     @Override
