@@ -466,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
         void handleGameStateChange(int gameState) {
             Log.i(TAG, "handleGameStateChange: ");
             for (BestClueFragment fragment : fragments) {
-                fragment.handleGameStateChange(gameState);
+                fragment.setGameState(gameState);
             }
         }
 
