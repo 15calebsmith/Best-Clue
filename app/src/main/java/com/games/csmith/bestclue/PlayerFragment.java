@@ -38,13 +38,10 @@ public class PlayerFragment extends BestClueFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: ");
         rootView = inflater.inflate(R.layout.fragment_player, container, false);
         if ((savedInstanceState != null) && (savedInstanceState.containsKey(PLAYER_KEY))) {
-            Log.d(TAG, "onCreateView: 1");
             player = savedInstanceState.getParcelable(PLAYER_KEY);
         } else if ((getArguments() != null) && (getArguments().containsKey(PLAYER_KEY))) {
-            Log.d(TAG, "onCreateView: 2");
             player = getArguments().getParcelable(PLAYER_KEY);
         }
         super.onCreateView(inflater, container, savedInstanceState);
@@ -60,7 +57,6 @@ public class PlayerFragment extends BestClueFragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onActivityCreated: ");
         super.onActivityCreated(savedInstanceState);
         if ((savedInstanceState != null) && (savedInstanceState.containsKey(PLAYER_KEY))) {
             player = savedInstanceState.getParcelable(PLAYER_KEY);
@@ -69,7 +65,6 @@ public class PlayerFragment extends BestClueFragment {
 
     @Override
     void handleGameStateChange(int gameState) {
-        Log.d(TAG, "handleGameStateChange: " + getFragmentTitle() + ": " + player);
         switch (gameState) {
             case Game.GAME_STATE_ADD_PLAYERS:
                 hidePlayerCardsTitle();
@@ -104,26 +99,24 @@ public class PlayerFragment extends BestClueFragment {
     }
 
     private void hidePlayerCardsTitle() {
-        View playerCardsList = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
-        if (playerCardsList != null) {
-            playerCardsList.setVisibility(View.GONE);
+        View playerCardsTitle = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
+        if (playerCardsTitle != null) {
+            playerCardsTitle.setVisibility(View.GONE);
         }
     }
 
     private void showPlayerCardsTitle() {
-        View playerCardsList = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
-        if (playerCardsList != null) {
-            playerCardsList.setVisibility(View.VISIBLE);
+        View playerCardsTitle = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
+        if (playerCardsTitle != null) {
+            playerCardsTitle.setVisibility(View.VISIBLE);
         }
     }
 
     public void updateKnowledge(Game game) {
-        Log.d(TAG, "updateKnowledge: " + getFragmentTitle() + ": " + player);
         updateCards();
     }
 
     private void updateCards() {
-        Log.d(TAG, "updateCards: " + getFragmentTitle() + ": " + player);
         if (rootView != null) {
             cards.clear();
             cards.addAll(Arrays.asList(player.getCards()));

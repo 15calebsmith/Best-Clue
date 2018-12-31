@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private final int DEBUG = 1;
     private static final String GAME_KEY = "GAME_KEY";
     private static final String PREDICTIONS_KEY = "PREDICTIONS_KEY";
     private BroadcastReceiver gameStateBroadcastReceiver = new GameStateBroadcastReceiver();
@@ -125,10 +126,37 @@ public class MainActivity extends AppCompatActivity {
     public void onAddPlayerButtonOnClick(View view) {
         Log.d(TAG, "onAddPlayerButtonOnClick: ");
 
-        boolean test = true;
-        if (!test) {
-            showAddPlayerDialog();
-        } else {
+        if (DEBUG == 1) {
+            addPlayer("qwerty");
+            addPlayer("asdf");
+            game.initializePlayerPredictions();
+            game.setPlayersCards(game.getPlayers().get(0), new boolean[]{
+                    true,
+                    true,
+                    true,
+                    true,
+                    true,
+                    false,
+
+                    true,
+                    true,
+                    true,
+                    true,
+                    false,
+                    false,
+
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+            });
+            game.setPlayersNumberOfCards(game.getPlayers().get(1), 9);
+        } else if (DEBUG == 2) {
             addPlayer("qwerty");
             addPlayer("asdf");
             addPlayer("zxcv");
@@ -160,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
             });
             game.setPlayersNumberOfCards(game.getPlayers().get(1), 6);
             game.setPlayersNumberOfCards(game.getPlayers().get(2), 6);
+        } else {
+            showAddPlayerDialog();
         }
     }
 

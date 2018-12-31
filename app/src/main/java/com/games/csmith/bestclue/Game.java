@@ -85,13 +85,16 @@ public class Game implements Parcelable {
     }
 
     private boolean isGameReadyToStart() {
-        boolean retval = true;
+        return allPlayersCardsSet();
+    }
+
+    private boolean allPlayersCardsSet() {
         for (Player player : players) {
             if (player.getNumberOfCards() == 0) {
-                retval = false;
+                return false;
             }
         }
-        return retval;
+        return true;
     }
 
     void reset() {

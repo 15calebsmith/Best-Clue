@@ -19,10 +19,8 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="@string/player_cards_screen_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/player_cards_constraint_layout" />
+            android:text="@string/player_fragment_cards_title"
+            app:layout_constraintTop_toTopOf="@id/player_cards_constraint_layout" />
 
         <ListView
             android:id="@+id/player_cards_list_view"

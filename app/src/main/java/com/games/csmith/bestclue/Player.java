@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 public class Player implements Parcelable {
     private static final String TAG = "Player";
+    private final int DEBUG = 0;
     private String name;
     private int numberOfCards;
     private Card[] cards;
@@ -159,20 +160,22 @@ public class Player implements Parcelable {
     }
 
     void printDebugKnowledge() {
-        Log.d(TAG, "printDebugKnowledge: ------------------------------");
-        Log.d(TAG, "printDebugKnowledge: " + getName());
-        Log.d(TAG, "printDebugKnowledge: ");
-        for (int i = 0; i < Card.getCardCount(); i++) {
-            int best = Card.KNOWLEDGE_UNKNOWN;
-            if (cardPlayerKnowledge.get(i) != null) {
-                HashMap<Player, Integer> hashMap = cardPlayerKnowledge.get(i);
-                for (Player player : hashMap.keySet()) {
-                    best = Card.getGreatestKnowledge(best, hashMap.get(player));
+        if (DEBUG > 0) {
+            Log.d(TAG, "printDebugKnowledge: ------------------------------");
+            Log.d(TAG, "printDebugKnowledge: " + getName());
+            Log.d(TAG, "printDebugKnowledge: ");
+            for (int i = 0; i < Card.getCardCount(); i++) {
+                int best = Card.KNOWLEDGE_UNKNOWN;
+                if (cardPlayerKnowledge.get(i) != null) {
+                    HashMap<Player, Integer> hashMap = cardPlayerKnowledge.get(i);
+                    for (Player player : hashMap.keySet()) {
+                        best = Card.getGreatestKnowledge(best, hashMap.get(player));
+                    }
                 }
+                Log.d(TAG, "printDebugKnowledge: " + i + ":" + best);
             }
-            Log.d(TAG, "printDebugKnowledge: " + i + ":" + best);
+            Log.d(TAG, "printDebugKnowledge: ------------------------------");
         }
-        Log.d(TAG, "printDebugKnowledge: ------------------------------");
     }
 
     @Override
