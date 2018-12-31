@@ -23,6 +23,8 @@ public class PlayerFragment extends BestClueFragment {
     private View rootView;
     private ArrayAdapter cardsAdapter;
     private ArrayList<Card> cards = new ArrayList<>();
+    private ArrayAdapter knowledgeAdapter;
+    private ArrayList<Integer> knowledge = new ArrayList<>();
 
 
     public static PlayerFragment newInstance(int gameState, Player player) {
@@ -69,14 +71,20 @@ public class PlayerFragment extends BestClueFragment {
             case Game.GAME_STATE_ADD_PLAYERS:
                 hidePlayerCardsTitle();
                 hidePlayerCardsList();
+                hidePlayerKnowledgeTitle();
+                hidePlayerKnowledgeList();
                 break;
             case Game.GAME_STATE_READY_TO_START:
                 hidePlayerCardsTitle();
                 hidePlayerCardsList();
+                hidePlayerKnowledgeTitle();
+                hidePlayerKnowledgeList();
                 break;
             case Game.GAME_STATE_PLAYING:
                 showPlayerCardsTitle();
                 showPlayerCardsList();
+                showPlayerKnowledgeTitle();
+                showPlayerKnowledgeList();
                 break;
             default:
                 Log.e(TAG, "handleGameStateChange: Unknown game state: " + gameState);
@@ -112,8 +120,37 @@ public class PlayerFragment extends BestClueFragment {
         }
     }
 
+    private void hidePlayerKnowledgeList() {
+        View playerKnowledgeList = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_view);
+        if (playerKnowledgeList != null) {
+            playerKnowledgeList.setVisibility(View.GONE);
+        }
+    }
+
+    private void showPlayerKnowledgeList() {
+        View playerKnowledgeList = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_view);
+        if (playerKnowledgeList != null) {
+            playerKnowledgeList.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hidePlayerKnowledgeTitle() {
+        View playerKnowledgeTitle = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_title);
+        if (playerKnowledgeTitle != null) {
+            playerKnowledgeTitle.setVisibility(View.GONE);
+        }
+    }
+
+    private void showPlayerKnowledgeTitle() {
+        View playerKnowledgeTitle = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_title);
+        if (playerKnowledgeTitle != null) {
+            playerKnowledgeTitle.setVisibility(View.VISIBLE);
+        }
+    }
+
     public void updateKnowledge(Game game) {
         updateCards();
+        updateKnowledge();
     }
 
     private void updateCards() {
@@ -131,6 +168,24 @@ public class PlayerFragment extends BestClueFragment {
             }
 
             cardsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void updateKnowledge() {
+        if (rootView != null) {
+            knowledge.clear();
+            knowledge.addAll(Arrays.asList(player.getCardKnowledge()));
+
+            if (knowledgeAdapter == null) {
+                knowledgeAdapter = new ArrayAdapter<>(rootView.getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, knowledge);
+            }
+
+            ListView knowledgeListView = rootView == null ? null : (ListView) rootView.findViewById(R.id.player_knowledge_list_view);
+            if ((knowledgeListView != null) && (knowledgeListView.getAdapter() == null)) {
+                knowledgeListView.setAdapter(knowledgeAdapter);
+            }
+
+            knowledgeAdapter.notifyDataSetChanged();
         }
     }
 }

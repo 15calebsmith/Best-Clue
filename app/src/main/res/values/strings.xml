@@ -24,4 +24,5 @@
     <string name="number_of_cards_hint">Number of Cards</string>
 
     <string name="player_fragment_cards_title">Cards</string>
+    <string name="player_fragment_knowledge_title">Knowledge</string>
 </resources>

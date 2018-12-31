@@ -207,8 +207,8 @@ public class Player implements Parcelable {
         }
     }
 
-    int[] getCardKnowledge() {
-        int[] knowledge = new int[Card.getCardCount()];
+    Integer[] getCardKnowledge() {
+        Integer[] knowledge = new Integer[Card.getCardCount()];
         for (int i = 0; i < knowledge.length; i++) {
             HashMap<Player, Integer> playerKnowledgeMap = cardPlayerKnowledge.get(i);
             if (playerKnowledgeMap == null) {

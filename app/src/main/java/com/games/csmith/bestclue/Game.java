@@ -122,7 +122,7 @@ public class Game implements Parcelable {
     int[] generatePredictions() {
         int[] totalKnowledge = new int[Card.getCardCount()];
         for (Player player : players) {
-            int[] playerCardKnowledge = player.getCardKnowledge();
+            Integer[] playerCardKnowledge = player.getCardKnowledge();
             for (int i = 0; i < playerCardKnowledge.length; i++) {
                 int cardKnowledge = playerCardKnowledge[i];
                 int currentKnowledge = totalKnowledge[i];
