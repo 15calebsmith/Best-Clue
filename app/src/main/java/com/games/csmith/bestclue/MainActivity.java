@@ -118,9 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void newGame() {
         game.reset();
-        bestCluePagerAdapter.clearFragments();
+        bestCluePagerAdapter.clearPlayerFragments();
         bestCluePagerAdapter.addMainFragment();
-        viewPager.getAdapter().notifyDataSetChanged();
     }
 
     public void onAddPlayerButtonOnClick(View view) {
@@ -299,6 +298,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void onEndGameButtonOnClick(View view) {
         Log.d(TAG, "onEndGameButtonOnClick: ");
+        showConfirmEndGameDialog();
+    }
+
+    private void showConfirmEndGameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.end_game_dialog_title)
+                .setMessage(R.string.end_game_dialog_message)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        newGame();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null);
+        builder.create().show();
     }
 
     public void onNewTurnButtonOnClick(View view) {
@@ -468,8 +482,10 @@ public class MainActivity extends AppCompatActivity {
 
         void addMainFragment() {
             int mainFragmentIndex = 0;
-            MainFragment mainFragment = MainFragment.newInstance(game.getGameState(), getString(R.string.main_tab_title), predictions);
-            addFragment(mainFragmentIndex, mainFragment);
+            if ((fragments.size() <= mainFragmentIndex) || !(fragments.get(mainFragmentIndex) instanceof MainFragment)) {
+                MainFragment mainFragment = MainFragment.newInstance(game.getGameState(), getString(R.string.main_tab_title), predictions);
+                addFragment(mainFragmentIndex, mainFragment);
+            }
         }
 
         void addPlayerFragment(int index, Player player) {
@@ -480,7 +496,6 @@ public class MainActivity extends AppCompatActivity {
 
         private void addFragment(int index, BestClueFragment fragment) {
             if (fragments.size() >= (index + 1)) {
-
                 fragments.set(index, fragment);
             } else {
                 fragments.add(index, fragment);
@@ -488,8 +503,14 @@ public class MainActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
-        void clearFragments() {
-            fragments.clear();
+        void clearPlayerFragments() {
+            ArrayList<PlayerFragment> playerFragments = new ArrayList<>();
+            for (int i = 1; i < fragments.size(); ++i) {
+                if (fragments.get(i) instanceof PlayerFragment) {
+                    playerFragments.add((PlayerFragment) fragments.get(i));
+                }
+            }
+            fragments.removeAll(playerFragments);
             notifyDataSetChanged();
         }
 

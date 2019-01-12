@@ -19,6 +19,8 @@
     <string name="turn_weapon_dialog_title">Weapon</string>
     <string name="turn_room_dialog_title">Room</string>
     <string name="turn_answer_card_dialog_title">Answer</string>
+    <string name="end_game_dialog_title">End Game?</string>
+    <string name="end_game_dialog_message">All progress will be lost.</string>
 
     <string name="player_name_hint">Player Name</string>
     <string name="number_of_cards_hint">Number of Cards</string>
