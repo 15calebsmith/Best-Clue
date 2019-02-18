@@ -24,7 +24,7 @@ public class PlayerFragment extends BestClueFragment {
     private ArrayAdapter cardsAdapter;
     private ArrayList<Card> cards = new ArrayList<>();
     private ArrayAdapter knowledgeAdapter;
-    private ArrayList<Integer> knowledge = new ArrayList<>();
+    private ArrayList<Card.Knowledge> knowledge = new ArrayList<>();
 
 
     public static PlayerFragment newInstance(int gameState, Player player) {

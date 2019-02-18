@@ -96,12 +96,8 @@ public class Player implements Parcelable {
     void addCard(Card card) {
         if (Card.isGameCard(card.getId())) {
             cards[card.getId()] = card;
-            addCardKnowledge(this, card, Card.KNOWLEDGE_NOT_GUILTY);
+            addCardKnowledge(this, card, Card.Knowledge.NOT_GUILTY);
         }
-    }
-
-    SparseArray<HashMap<Player, Integer>> getCardPlayerKnowledge() {
-        return cardPlayerKnowledge;
     }
 
     void initializeKnowledge(ArrayList<Player> players) {
@@ -109,7 +105,7 @@ public class Player implements Parcelable {
             Card card = new Card(i);
             for (Player player : players) {
                 HashMap<Player, Integer> playerIntegerHashMap = new HashMap<>();
-                playerIntegerHashMap.put(player, Card.KNOWLEDGE_UNKNOWN);
+                playerIntegerHashMap.put(player, Card.Knowledge.UNKNOWN);
                 cardPlayerKnowledge.put(card.getId(), playerIntegerHashMap);
             }
         }
@@ -117,18 +113,18 @@ public class Player implements Parcelable {
 
     void handleAnswer(Player answerPlayer, Card suspect, Card weapon, Card room, Card answer) {
         if (answer.getCardType().equals(Card.NONE)) {
-            addCardKnowledge(answerPlayer, suspect, Card.KNOWLEDGE_POSSIBLY_GUILTY);
-            addCardKnowledge(answerPlayer, weapon, Card.KNOWLEDGE_POSSIBLY_GUILTY);
-            addCardKnowledge(answerPlayer, room, Card.KNOWLEDGE_POSSIBLY_GUILTY);
+            addCardKnowledge(answerPlayer, suspect, Card.Knowledge.POSSIBLY_GUILTY);
+            addCardKnowledge(answerPlayer, weapon, Card.Knowledge.POSSIBLY_GUILTY);
+            addCardKnowledge(answerPlayer, room, Card.Knowledge.POSSIBLY_GUILTY);
 
             checkIfGuilty(suspect);
             checkIfGuilty(weapon);
             checkIfGuilty(room);
         } else {
-            addCardKnowledge(answerPlayer, suspect, Card.KNOWLEDGE_AVOIDED);
-            addCardKnowledge(answerPlayer, weapon, Card.KNOWLEDGE_AVOIDED);
-            addCardKnowledge(answerPlayer, room, Card.KNOWLEDGE_AVOIDED);
-            addCardKnowledge(answerPlayer, answer, Card.KNOWLEDGE_NOT_GUILTY);
+            addCardKnowledge(answerPlayer, suspect, Card.Knowledge.AVOIDED);
+            addCardKnowledge(answerPlayer, weapon, Card.Knowledge.AVOIDED);
+            addCardKnowledge(answerPlayer, room, Card.Knowledge.AVOIDED);
+            addCardKnowledge(answerPlayer, answer, Card.Knowledge.NOT_GUILTY);
         }
     }
 
@@ -149,13 +145,13 @@ public class Player implements Parcelable {
         boolean guilty = true;
         HashMap<Player, Integer> playerKnowledge = cardPlayerKnowledge.get(card.getId());
         for (Player player : playerKnowledge.keySet()) {
-            if (!(playerKnowledge.get(player).equals(Card.KNOWLEDGE_POSSIBLY_GUILTY) || (playerKnowledge.get(player).equals(Card.KNOWLEDGE_GUILTY)))) {
+            if (!(playerKnowledge.get(player).equals(Card.Knowledge.POSSIBLY_GUILTY) || (playerKnowledge.get(player).equals(Card.Knowledge.GUILTY)))) {
                 guilty = false;
             }
         }
 
         if (guilty) {
-            addCardKnowledge(this, card, Card.KNOWLEDGE_GUILTY);
+            addCardKnowledge(this, card, Card.Knowledge.GUILTY);
         }
     }
 
@@ -165,7 +161,7 @@ public class Player implements Parcelable {
             Log.d(TAG, "printDebugKnowledge: " + getName());
             Log.d(TAG, "printDebugKnowledge: ");
             for (int i = 0; i < Card.getCardCount(); i++) {
-                int best = Card.KNOWLEDGE_UNKNOWN;
+                int best = Card.Knowledge.UNKNOWN;
                 if (cardPlayerKnowledge.get(i) != null) {
                     HashMap<Player, Integer> hashMap = cardPlayerKnowledge.get(i);
                     for (Player player : hashMap.keySet()) {
@@ -207,18 +203,18 @@ public class Player implements Parcelable {
         }
     }
 
-    Integer[] getCardKnowledge() {
-        Integer[] knowledge = new Integer[Card.getCardCount()];
+    Card.Knowledge[] getCardKnowledge() {
+        Card.Knowledge[] knowledge = new Card.Knowledge[Card.getCardCount()];
         for (int i = 0; i < knowledge.length; i++) {
             HashMap<Player, Integer> playerKnowledgeMap = cardPlayerKnowledge.get(i);
             if (playerKnowledgeMap == null) {
                 playerKnowledgeMap = new HashMap<>();
             }
-            int bestKnowledge = Card.KNOWLEDGE_UNKNOWN;
+            int bestKnowledge = Card.Knowledge.UNKNOWN;
             for (int playerKnowledge : playerKnowledgeMap.values()) {
                 bestKnowledge = Card.getGreatestKnowledge(bestKnowledge, playerKnowledge);
             }
-            knowledge[i] = bestKnowledge;
+            knowledge[i] = new Card.Knowledge(new Card(i), bestKnowledge);
         }
 
         return knowledge;

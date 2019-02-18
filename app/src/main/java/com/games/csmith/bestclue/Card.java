@@ -21,12 +21,6 @@ class Card implements Parcelable {
     static final int UNKNOWN_ID = -2;
     private static final int ERROR_ID = -3;
 
-    static final int KNOWLEDGE_UNKNOWN = 0;
-    static final int KNOWLEDGE_AVOIDED = 1;
-    static final int KNOWLEDGE_POSSIBLY_GUILTY = 2;
-    static final int KNOWLEDGE_GUILTY = 3;
-    static final int KNOWLEDGE_NOT_GUILTY = 4;
-
     private String cardType;
     private int id;
 
@@ -83,7 +77,7 @@ class Card implements Parcelable {
     private int getIdFromTypeAndPos(String cardType, int position) {
         switch (cardType) {
             case SUSPECT:
-                return  position;
+                return position;
             case WEAPON:
                 return position + SUSPECTS.length;
             case ROOM:
@@ -224,4 +218,66 @@ class Card implements Parcelable {
             "Library",
             "Study",
     };
+
+    static class Knowledge {
+        static final int UNKNOWN = 0;
+        static final int AVOIDED = 1;
+        static final int POSSIBLY_GUILTY = 2;
+        static final int GUILTY = 3;
+        static final int NOT_GUILTY = 4;
+        private Card card;
+        private int knowledgeLevel;
+
+        Knowledge(Card card, int knowledgeLevel) {
+            this.card = card;
+            setKnowledgeLevel(knowledgeLevel);
+        }
+
+        int getKnowledgeLevel() {
+            return knowledgeLevel;
+        }
+
+        void setKnowledgeLevel(int knowledgeLevel) {
+            this.knowledgeLevel = knowledgeLevel;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder divider = new StringBuilder();
+            divider.append("   ");
+            for (int i = card.getCardName().length(); i < getLongestCardNameLength(getCards()); i++) {
+                divider.append(" ");
+            }
+            return card.getCardName() + divider.toString() + knowledgeLevelToString();
+        }
+
+        private static int getLongestCardNameLength(CharSequence[] cardNames) {
+            int longest = 0;
+            for (CharSequence cardName : cardNames) {
+                if (cardName.length() > longest) {
+                    longest = cardName.length();
+                }
+            }
+
+            return longest;
+        }
+
+        String knowledgeLevelToString() {
+            switch(knowledgeLevel) {
+                case UNKNOWN:
+                    return "Unknown";
+                case AVOIDED:
+                    return "Avoided";
+                case POSSIBLY_GUILTY:
+                    return "Possibly guilty";
+                case GUILTY:
+                    return "Guilty";
+                case NOT_GUILTY:
+                    return "Not guilty";
+                default:
+                    Log.e(TAG, "knowledgeLevelToString: Unknown knowledge level:" + knowledgeLevel);
+                    return "Error";
+            }
+        }
+    }
 }

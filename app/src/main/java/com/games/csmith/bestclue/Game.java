@@ -119,14 +119,18 @@ public class Game implements Parcelable {
         }
     }
 
-    int[] generatePredictions() {
-        int[] totalKnowledge = new int[Card.getCardCount()];
+    Card.Knowledge[] generatePredictions() {
+        Card.Knowledge[] totalKnowledge = new Card.Knowledge[Card.getCardCount()];
         for (Player player : players) {
-            Integer[] playerCardKnowledge = player.getCardKnowledge();
+            Card.Knowledge[] playerCardKnowledge = player.getCardKnowledge();
             for (int i = 0; i < playerCardKnowledge.length; i++) {
-                int cardKnowledge = playerCardKnowledge[i];
-                int currentKnowledge = totalKnowledge[i];
-                totalKnowledge[i] = Card.getGreatestKnowledge(currentKnowledge, cardKnowledge);
+                if (totalKnowledge[i] == null) {
+                    totalKnowledge[i] = playerCardKnowledge[i];
+                } else {
+                    int cardKnowledge = playerCardKnowledge[i].getKnowledgeLevel();
+                    int currentKnowledge = totalKnowledge[i].getKnowledgeLevel();
+                    totalKnowledge[i].setKnowledgeLevel(Card.getGreatestKnowledge(currentKnowledge, cardKnowledge));
+                }
             }
         }
 

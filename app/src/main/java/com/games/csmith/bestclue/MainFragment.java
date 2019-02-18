@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by csmith on 2/3/18.
@@ -71,9 +70,7 @@ public class MainFragment extends BestClueFragment {
     }
 
     public void updateKnowledge(Game game) {
-        Log.i(TAG, "updateKnowledge: " + getFragmentTitle() + ": ");
-        int[] generatedPredictions = game.generatePredictions();
-        Log.i(TAG, "updateKnowledge: " + getFragmentTitle() + ": " + "generatedPredictions=" + Arrays.toString(generatedPredictions));
+        Card.Knowledge[] generatedPredictions = game.generatePredictions();
         predictions.clear();
         predictions.addAll(Predictions.generatePredictions(generatedPredictions));
         updatePredictions();
@@ -95,7 +92,6 @@ public class MainFragment extends BestClueFragment {
     }
 
     void handleGameStateChange(int gameState) {
-        Log.i(TAG, "handleGameStateChange: " + getFragmentTitle() + ": ");
         if (rootView != null) {
             switch (gameState) {
                 case Game.GAME_STATE_ADD_PLAYERS:

@@ -19,10 +19,10 @@ class Predictions {
     private static final double AVOIDED_WEIGHT = 2.0;
     private static final double POSSIBLY_GUILTY_WEIGHT = 3.0;
 
-    static ArrayList<Prediction> generatePredictions(int[] knowledge) {
-        Integer[] allSuspects = new Integer[Card.getSuspects().length];
-        Integer[] allWeapons = new Integer[Card.getWeapons().length];
-        Integer[] allRooms = new Integer[Card.getRooms().length];
+    static ArrayList<Prediction> generatePredictions(Card.Knowledge[] knowledge) {
+        Card.Knowledge[] allSuspects = new Card.Knowledge[Card.getSuspects().length];
+        Card.Knowledge[] allWeapons = new Card.Knowledge[Card.getWeapons().length];
+        Card.Knowledge[] allRooms = new Card.Knowledge[Card.getRooms().length];
 
         for (int i = 0; i < knowledge.length; i++) {
             String cardType = Card.getCardTypeFromId(i);
@@ -47,33 +47,33 @@ class Predictions {
         return generatePredictionCombinations(suspiciousSuspects, suspiciousWeapons, suspiciousRooms);
     }
 
-    private static SparseArray<Double> getSuspicious(Integer[] cards) {
+    private static SparseArray<Double> getSuspicious(Card.Knowledge[] cards) {
         SparseArray<Double> suspicious = new SparseArray<>();
         double denominator = 0;
         for (int i = 0; i < cards.length; i++) {
-            int knowledge = cards[i];
-            if (knowledge == Card.KNOWLEDGE_GUILTY) {
+            Card.Knowledge knowledge = cards[i];
+            if (knowledge.getKnowledgeLevel() == Card.Knowledge.GUILTY) {
                 suspicious.clear();
                 suspicious.put(i, 1.0);
                 return suspicious;
-            } else if (knowledge == Card.KNOWLEDGE_UNKNOWN) {
+            } else if (knowledge.getKnowledgeLevel() == Card.Knowledge.UNKNOWN) {
                 denominator = denominator + UNKNOWN_WEIGHT;
-            } else if (knowledge == Card.KNOWLEDGE_AVOIDED) {
+            } else if (knowledge.getKnowledgeLevel() == Card.Knowledge.AVOIDED) {
                 denominator = denominator + AVOIDED_WEIGHT;
-            } else if (knowledge == Card.KNOWLEDGE_POSSIBLY_GUILTY) {
+            } else if (knowledge.getKnowledgeLevel() == Card.Knowledge.POSSIBLY_GUILTY) {
                 denominator = denominator + POSSIBLY_GUILTY_WEIGHT;
             }
         }
 
         for (int i = 0; i < cards.length; i++) {
-            int knowledge = cards[i];
-            if (knowledge == Card.KNOWLEDGE_UNKNOWN) {
+            Card.Knowledge knowledge = cards[i];
+            if (knowledge.getKnowledgeLevel() == Card.Knowledge.UNKNOWN) {
                 double prediction = UNKNOWN_WEIGHT / denominator;
                 suspicious.put(i, prediction);
-            } else if (knowledge == Card.KNOWLEDGE_POSSIBLY_GUILTY) {
+            } else if (knowledge.getKnowledgeLevel() == Card.Knowledge.POSSIBLY_GUILTY) {
                 double prediction = POSSIBLY_GUILTY_WEIGHT / denominator;
                 suspicious.put(i, prediction);
-            } else if (knowledge == Card.KNOWLEDGE_AVOIDED) {
+            } else if (knowledge.getKnowledgeLevel() == Card.Knowledge.AVOIDED) {
                 double prediction = AVOIDED_WEIGHT / denominator;
                 suspicious.put(i, prediction);
             }
