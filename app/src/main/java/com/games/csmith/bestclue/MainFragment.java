@@ -123,16 +123,16 @@ public class MainFragment extends BestClueFragment {
     }
 
     private void showPredictionsList() {
-        ListView predictionsList = rootView.findViewById(R.id.prediction_list_view);
-        if (predictionsList != null) {
-            predictionsList.setVisibility(View.VISIBLE);
+        View predictionsListConstraintLayout = rootView.findViewById(R.id.predictions_list_constraint_layout);
+        if (predictionsListConstraintLayout != null) {
+            predictionsListConstraintLayout.setVisibility(View.VISIBLE);
         }
     }
 
     private void hidePredictionsList() {
-        ListView predictionsList = rootView.findViewById(R.id.prediction_list_view);
-        if (predictionsList != null) {
-            predictionsList.setVisibility(View.GONE);
+        View predictionsListConstraintLayout = rootView.findViewById(R.id.predictions_list_constraint_layout);
+        if (predictionsListConstraintLayout != null) {
+            predictionsListConstraintLayout.setVisibility(View.GONE);
         }
     }
 

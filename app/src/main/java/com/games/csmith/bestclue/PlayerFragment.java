@@ -93,16 +93,16 @@ public class PlayerFragment extends BestClueFragment {
     }
 
     private void hidePlayerCardsList() {
-        View playerCardsList = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_view);
-        if (playerCardsList != null) {
-            playerCardsList.setVisibility(View.GONE);
+        View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
+        if (playerCardsListConstraintLayout != null) {
+            playerCardsListConstraintLayout.setVisibility(View.GONE);
         }
     }
 
     private void showPlayerCardsList() {
-        View playerCardsList = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_view);
-        if (playerCardsList != null) {
-            playerCardsList.setVisibility(View.VISIBLE);
+        View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
+        if (playerCardsListConstraintLayout != null) {
+            playerCardsListConstraintLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -121,16 +121,16 @@ public class PlayerFragment extends BestClueFragment {
     }
 
     private void hidePlayerKnowledgeList() {
-        View playerKnowledgeList = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_view);
-        if (playerKnowledgeList != null) {
-            playerKnowledgeList.setVisibility(View.GONE);
+        View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
+        if (playerKnowledgeListConstraintLayout != null) {
+            playerKnowledgeListConstraintLayout.setVisibility(View.GONE);
         }
     }
 
     private void showPlayerKnowledgeList() {
-        View playerKnowledgeList = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_view);
-        if (playerKnowledgeList != null) {
-            playerKnowledgeList.setVisibility(View.VISIBLE);
+        View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
+        if (playerKnowledgeListConstraintLayout != null) {
+            playerKnowledgeListConstraintLayout.setVisibility(View.VISIBLE);
         }
     }
 

@@ -9,7 +9,8 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/button_constraint_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/constraintLayout">
 
         <Button
             android:id="@+id/add_player_button"
@@ -22,7 +23,8 @@
             android:onClick="onAddPlayerButtonOnClick"
             android:text="@string/add_player_button_text"
             app:layout_constraintEnd_toStartOf="@id/start_game_button"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="@id/button_constraint_layout"
+            app:layout_constraintTop_toTopOf="@id/button_constraint_layout" />
 
         <Button
             android:id="@+id/start_game_button"
@@ -35,8 +37,9 @@
             android:enabled="false"
             android:onClick="onStartGameButtonOnClick"
             android:text="@string/start_game_button_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/add_player_button" />
+            app:layout_constraintEnd_toEndOf="@id/button_constraint_layout"
+            app:layout_constraintStart_toEndOf="@id/add_player_button"
+            app:layout_constraintTop_toTopOf="@id/button_constraint_layout" />
 
 
         <Button
@@ -51,7 +54,8 @@
             android:text="@string/end_game_button_text"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@id/new_turn_button"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="@id/button_constraint_layout"
+            app:layout_constraintTop_toTopOf="@id/button_constraint_layout" />
 
         <Button
             android:id="@+id/new_turn_button"
@@ -64,18 +68,27 @@
             android:onClick="onNewTurnButtonOnClick"
             android:text="@string/new_turn_button_text"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/end_game_button" />
+            app:layout_constraintEnd_toEndOf="@id/button_constraint_layout"
+            app:layout_constraintStart_toEndOf="@id/end_game_button"
+            app:layout_constraintTop_toTopOf="@id/button_constraint_layout" />
 
     </android.support.constraint.ConstraintLayout>
 
-    <ListView
-        android:id="@+id/prediction_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/predictions_list_constraint_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_constraint_layout" />
+        app:layout_constraintBottom_toBottomOf="@id/constraintLayout"
+        app:layout_constraintEnd_toEndOf="@id/constraintLayout"
+        app:layout_constraintStart_toStartOf="@id/constraintLayout"
+        app:layout_constraintTop_toBottomOf="@id/button_constraint_layout">
 
+        <ListView
+            android:id="@+id/prediction_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/predictions_list_constraint_layout" />
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
