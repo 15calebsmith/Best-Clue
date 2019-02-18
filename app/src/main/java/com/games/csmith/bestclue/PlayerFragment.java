@@ -70,21 +70,15 @@ public class PlayerFragment extends BestClueFragment {
         switch (gameState) {
             case Game.GAME_STATE_ADD_PLAYERS:
                 hidePlayerCardsTitle();
-                hidePlayerCardsList();
                 hidePlayerKnowledgeTitle();
-                hidePlayerKnowledgeList();
                 break;
             case Game.GAME_STATE_READY_TO_START:
                 hidePlayerCardsTitle();
-                hidePlayerCardsList();
                 hidePlayerKnowledgeTitle();
-                hidePlayerKnowledgeList();
                 break;
             case Game.GAME_STATE_PLAYING:
                 showPlayerCardsTitle();
-                showPlayerCardsList();
                 showPlayerKnowledgeTitle();
-                showPlayerKnowledgeList();
                 break;
             default:
                 Log.e(TAG, "handleGameStateChange: Unknown game state: " + gameState);
@@ -103,20 +97,6 @@ public class PlayerFragment extends BestClueFragment {
         View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
         if (playerCardsListConstraintLayout != null) {
             playerCardsListConstraintLayout.setVisibility(playerCardsListConstraintLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    private void hidePlayerCardsList() {
-        View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
-        if (playerCardsListConstraintLayout != null) {
-            playerCardsListConstraintLayout.setVisibility(View.GONE);
-        }
-    }
-
-    private void showPlayerCardsList() {
-        View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
-        if (playerCardsListConstraintLayout != null) {
-            playerCardsListConstraintLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -145,20 +125,6 @@ public class PlayerFragment extends BestClueFragment {
         View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
         if (playerKnowledgeListConstraintLayout != null) {
             playerKnowledgeListConstraintLayout.setVisibility(playerKnowledgeListConstraintLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    private void hidePlayerKnowledgeList() {
-        View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
-        if (playerKnowledgeListConstraintLayout != null) {
-            playerKnowledgeListConstraintLayout.setVisibility(View.GONE);
-        }
-    }
-
-    private void showPlayerKnowledgeList() {
-        View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
-        if (playerKnowledgeListConstraintLayout != null) {
-            playerKnowledgeListConstraintLayout.setVisibility(View.VISIBLE);
         }
     }
 
