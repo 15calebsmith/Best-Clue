@@ -40,17 +40,21 @@ class Predictions {
             }
         }
 
-        SparseArray<Double> suspiciousSuspects = getSuspicious(allSuspects);
-        SparseArray<Double> suspiciousWeapons = getSuspicious(allWeapons);
-        SparseArray<Double> suspiciousRooms = getSuspicious(allRooms);
+        SparseArray<Double> suspiciousSuspects = getSuspicious(allSuspects, Card.SUSPECT);
+        SparseArray<Double> suspiciousWeapons = getSuspicious(allWeapons, Card.WEAPON);
+        SparseArray<Double> suspiciousRooms = getSuspicious(allRooms, Card.ROOM);
 
         return generatePredictionCombinations(suspiciousSuspects, suspiciousWeapons, suspiciousRooms);
     }
 
-    private static SparseArray<Double> getSuspicious(Card.Knowledge[] cards) {
+    private static SparseArray<Double> getSuspicious(Card.Knowledge[] cards, String cardType) {
         SparseArray<Double> suspicious = new SparseArray<>();
         double denominator = 0;
         for (int i = 0; i < cards.length; i++) {
+            if (cards[i] == null) {
+                cards[i] = new Card.Knowledge(new Card(cardType, i), Card.Knowledge.UNKNOWN);
+            }
+
             Card.Knowledge knowledge = cards[i];
             if (knowledge.getKnowledgeLevel() == Card.Knowledge.GUILTY) {
                 suspicious.clear();
@@ -141,7 +145,7 @@ class Predictions {
             String suspectString = suspect.first.getCardName();
             String weaponString = weapon.first.getCardName();
             String roomString = room.first.getCardName();
-            return "(" + suspectString + ", " + weaponString + ", " + roomString + ") --> " + String.format(Locale.US, "%.2f", probability * 100) + "%";
+            return suspectString + " with the " + weaponString + " in the " + roomString + "\n" + String.format(Locale.US, "%.2f", probability * 100) + "%";
         }
 
         @Override
