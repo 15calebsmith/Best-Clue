@@ -417,6 +417,14 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    public void onPlayerCardsTitleClick(View view) {
+        bestCluePagerAdapter.handleOnPlayerCardsTitleClick(view);
+    }
+
+    public void onPlayerKnowledgeTitleClick(View view) {
+        bestCluePagerAdapter.handleOnPlayerKnowledgeTitleClick(view);
+    }
+
     private class GameStateBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -525,6 +533,22 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "updatePredictions: ");
             for (BestClueFragment fragment : fragments) {
                 fragment.updateKnowledge(game);
+            }
+        }
+
+        void handleOnPlayerCardsTitleClick(View view) {
+            for (BestClueFragment fragment : fragments) {
+                if (fragment instanceof PlayerFragment) {
+                    ((PlayerFragment) fragment).handleOnPlayerCardsTitleClick(view);
+                }
+            }
+        }
+
+        void handleOnPlayerKnowledgeTitleClick(View view) {
+            for (BestClueFragment fragment : fragments) {
+                if (fragment instanceof PlayerFragment) {
+                    ((PlayerFragment) fragment).handleOnPlayerKnowledgeTitleClick(view);
+                }
             }
         }
     }

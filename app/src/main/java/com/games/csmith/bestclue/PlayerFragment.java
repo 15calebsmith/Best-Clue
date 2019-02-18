@@ -92,6 +92,20 @@ public class PlayerFragment extends BestClueFragment {
         }
     }
 
+    public void handleOnPlayerCardsTitleClick(View view) {
+        View cardsTitleView = rootView == null ? null :rootView.findViewById(R.id.player_cards_title);
+        if (view != null && view.equals(cardsTitleView)) {
+            togglePlayerCardsList();
+        }
+    }
+
+    private void togglePlayerCardsList() {
+        View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
+        if (playerCardsListConstraintLayout != null) {
+            playerCardsListConstraintLayout.setVisibility(playerCardsListConstraintLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        }
+    }
+
     private void hidePlayerCardsList() {
         View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
         if (playerCardsListConstraintLayout != null) {
@@ -117,6 +131,20 @@ public class PlayerFragment extends BestClueFragment {
         View playerCardsTitle = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
         if (playerCardsTitle != null) {
             playerCardsTitle.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void handleOnPlayerKnowledgeTitleClick(View view) {
+        View cardsTitleView = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_title);
+        if (view != null && view.equals(cardsTitleView)) {
+            togglePlayerKnowledgeList();
+        }
+    }
+
+    private void togglePlayerKnowledgeList() {
+        View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
+        if (playerKnowledgeListConstraintLayout != null) {
+            playerKnowledgeListConstraintLayout.setVisibility(playerKnowledgeListConstraintLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
         }
     }
 
