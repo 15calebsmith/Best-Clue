@@ -21,21 +21,17 @@ class Card implements Parcelable {
     static final int UNKNOWN_ID = -2;
     private static final int ERROR_ID = -3;
 
-    private String cardType;
     private int id;
 
     Card(int id) {
-        this.cardType = getCardTypeFromId(id);
         this.id = id;
     }
 
     Card(String cardType, int position) {
-        this.cardType = cardType;
         this.id = getIdFromTypeAndPos(cardType, position);
     }
 
     private Card(Parcel in) {
-        cardType = in.readString();
         id = in.readInt();
     }
 
@@ -93,7 +89,7 @@ class Card implements Parcelable {
     }
 
     String getCardName() {
-        switch (cardType) {
+        switch (getCardType()) {
             case SUSPECT:
                 return SUSPECTS[id];
             case WEAPON:
@@ -105,13 +101,13 @@ class Card implements Parcelable {
             case UNKNOWN:
                 return "Unknown";
             default:
-                Log.e(TAG, "getCardName: Unknown card type:" + cardType);
+                Log.e(TAG, "getCardName: Unknown card type:" + getCardType());
                 return "Error";
         }
     }
 
     String getCardType() {
-        return cardType;
+        return getCardTypeFromId(getId());
     }
 
     static boolean isGameCard(int id) {
@@ -125,16 +121,17 @@ class Card implements Parcelable {
         }
     }
 
-    static int getGreatestKnowledge(int k1, int k2) {
-        return k1 >= k2 ? k1 : k2;
-    }
-
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Card && ((Card) obj).getId() == id;
     }
 
     @Override
@@ -149,7 +146,6 @@ class Card implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(cardType);
         dest.writeInt(id);
     }
 
@@ -219,12 +215,23 @@ class Card implements Parcelable {
             "Study",
     };
 
-    static class Knowledge {
+    static class Knowledge implements Parcelable{
         static final int UNKNOWN = 0;
         static final int AVOIDED = 1;
         static final int POSSIBLY_GUILTY = 2;
         static final int GUILTY = 3;
         static final int NOT_GUILTY = 4;
+        static final Creator<Knowledge> CREATOR = new Creator<Knowledge>() {
+            @Override
+            public Knowledge createFromParcel(Parcel in) {
+                return new Knowledge(in);
+            }
+
+            @Override
+            public Knowledge[] newArray(int size) {
+                return new Knowledge[size];
+            }
+        };
         private Card card;
         private int knowledgeLevel;
 
@@ -233,22 +240,9 @@ class Card implements Parcelable {
             setKnowledgeLevel(knowledgeLevel);
         }
 
-        int getKnowledgeLevel() {
-            return knowledgeLevel;
-        }
-
-        void setKnowledgeLevel(int knowledgeLevel) {
-            this.knowledgeLevel = knowledgeLevel;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder divider = new StringBuilder();
-            divider.append("   ");
-            for (int i = card.getCardName().length(); i < getLongestCardNameLength(getCards()); i++) {
-                divider.append(" ");
-            }
-            return card.getCardName() + divider.toString() + knowledgeLevelToString();
+        private Knowledge(Parcel in) {
+            card = in.readTypedObject(Card.CREATOR);
+            knowledgeLevel = in.readInt();
         }
 
         private static int getLongestCardNameLength(CharSequence[] cardNames) {
@@ -262,8 +256,30 @@ class Card implements Parcelable {
             return longest;
         }
 
+        int getKnowledgeLevel() {
+            return knowledgeLevel;
+        }
+
+        void setKnowledgeLevel(int knowledgeLevel) {
+            this.knowledgeLevel = knowledgeLevel;
+        }
+
+        Card getCard() {
+            return card;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder divider = new StringBuilder();
+            divider.append("   ");
+            for (int i = card.getCardName().length(); i < getLongestCardNameLength(getCards()); i++) {
+                divider.append(" ");
+            }
+            return card.getCardName() + divider.toString() + knowledgeLevelToString();
+        }
+
         String knowledgeLevelToString() {
-            switch(knowledgeLevel) {
+            switch (knowledgeLevel) {
                 case UNKNOWN:
                     return "Unknown";
                 case AVOIDED:
@@ -278,6 +294,17 @@ class Card implements Parcelable {
                     Log.e(TAG, "knowledgeLevelToString: Unknown knowledge level:" + knowledgeLevel);
                     return "Error";
             }
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeTypedObject(card, flags);
+            dest.writeInt(knowledgeLevel);
         }
     }
 }

@@ -112,29 +112,18 @@ public class Game implements Parcelable {
         answerPlayer.addCard(answer);
         askPlayer.handleAnswer(answerPlayer, suspect, weapon, room, answer);
         context.sendBroadcast(new Intent(ACTION_UPDATE_PREDICTIONS));
-
-        //TODO: remove once knowledge debugging is finished
-        for (Player player : players) {
-            player.printDebugKnowledge();
-        }
     }
 
     Card.Knowledge[] generatePredictions() {
-        Card.Knowledge[] totalKnowledge = new Card.Knowledge[Card.getCardCount()];
+        Card.Knowledge[] bestKnowledge = new Card.Knowledge[Card.getCardCount()];
         for (Player player : players) {
-            Card.Knowledge[] playerCardKnowledge = player.getCardKnowledge();
-            for (int i = 0; i < playerCardKnowledge.length; i++) {
-                if (totalKnowledge[i] == null) {
-                    totalKnowledge[i] = playerCardKnowledge[i];
-                } else {
-                    int cardKnowledge = playerCardKnowledge[i].getKnowledgeLevel();
-                    int currentKnowledge = totalKnowledge[i].getKnowledgeLevel();
-                    totalKnowledge[i].setKnowledgeLevel(Card.getGreatestKnowledge(currentKnowledge, cardKnowledge));
-                }
+            Card.Knowledge[] knowledge = player.getCardKnowledge();
+            for (int i = 0; i < knowledge.length; i++) {
+                bestKnowledge[i] = bestKnowledge[i] == null || knowledge[i].getKnowledgeLevel() > bestKnowledge[i].getKnowledgeLevel() ? knowledge[i] : bestKnowledge[i];
             }
         }
 
-        return totalKnowledge;
+        return bestKnowledge;
     }
 
     public static final Creator<Game> CREATOR = new Creator<Game>() {
