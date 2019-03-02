@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -77,21 +76,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.d(TAG, "onSaveInstanceState: ");
         savedInstanceState.putParcelable(GAME_KEY, game);
         savedInstanceState.putParcelableArrayList(PREDICTIONS_KEY, predictions);
-        bestCluePagerAdapter.saveFragments(savedInstanceState);
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.d(TAG, "onRestoreInstanceState: ");
         super.onRestoreInstanceState(savedInstanceState);
         predictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_KEY);
         viewPager.getAdapter().notifyDataSetChanged();
         game = savedInstanceState.getParcelable(GAME_KEY);
-        bestCluePagerAdapter.restoreFragments(savedInstanceState, game != null ? game.getGameState() : -1);
+        viewPager.getAdapter().notifyDataSetChanged();
+
     }
 
     @Override
@@ -118,13 +115,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void newGame() {
         game.reset();
-        bestCluePagerAdapter.clearPlayerFragments();
-        bestCluePagerAdapter.addMainFragment();
+        viewPager.getAdapter().notifyDataSetChanged();
     }
 
     public void onAddPlayerButtonOnClick(View view) {
-        Log.d(TAG, "onAddPlayerButtonOnClick: ");
-
         if (DEBUG == 1) {
             addPlayer("qwerty");
             addPlayer("asdf");
@@ -215,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
         if (!game.containsPlayer(playerName)) {
             Player player = new Player(playerName);
             game.addPlayer(player);
-            bestCluePagerAdapter.addPlayerFragment(game.getPlayers().indexOf(player), player);
             viewPager.getAdapter().notifyDataSetChanged();
             Toast.makeText(getApplicationContext(), playerName + " is now playing.", Toast.LENGTH_SHORT).show();
         } else {
@@ -440,104 +433,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class BestCluePagerAdapter extends FragmentPagerAdapter {
-        private static final String TAG = "BestCluePagerAdapter";
-        private static final String FRAGMENTS_SIZE_KEY = "FRAGMENTS_SIZE_KEY";
-        private ArrayList<BestClueFragment> fragments = new ArrayList<>();
-
         BestCluePagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
         }
 
         @Override
         public Fragment getItem(int position) {
-            if (getCount() <= position) {
-                if (position == 0) {
-                    addMainFragment();
-                } else {
-                    addPlayerFragment(position, game.getPlayers().get(position - 1));
-                }
+            if (position == 0) {
+                return MainFragment.newInstance(game.getGameState(), getString(R.string.main_tab_title), predictions);
+            } else {
+                return PlayerFragment.newInstance(game.getGameState(), game.getPlayers().get(position - 1));
             }
-            return fragments.get(position);
-        }
-
-        void saveFragments(Bundle bundle) {
-            bundle.putInt(FRAGMENTS_SIZE_KEY, fragments.size());
-            for (int i = 0; i < fragments.size(); i++) {
-                getSupportFragmentManager().putFragment(bundle, "Fragment" + String.valueOf(i), fragments.get(i));
-            }
-        }
-
-        void restoreFragments(Bundle bundle, int gameState) {
-            if (bundle.containsKey(FRAGMENTS_SIZE_KEY)) {
-                int fragmentsSize = bundle.getInt(FRAGMENTS_SIZE_KEY);
-                for (int i = 0; i < fragmentsSize; i++) {
-                    addFragment(i, (BestClueFragment) getSupportFragmentManager().getFragment(bundle, "Fragment" + String.valueOf(i)));
-                }
-            }
-            handleGameStateChange(gameState);
-            updatePredictions();
         }
 
         @Override
         public int getCount() {
-            return fragments.size();
+            return game == null ? 1 : game.getPlayers().size() + 1;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return fragments.get(position).getFragmentTitle();
-        }
-
-        void addMainFragment() {
-            int mainFragmentIndex = 0;
-            if ((fragments.size() <= mainFragmentIndex) || !(fragments.get(mainFragmentIndex) instanceof MainFragment)) {
-                MainFragment mainFragment = MainFragment.newInstance(game.getGameState(), getString(R.string.main_tab_title), predictions);
-                addFragment(mainFragmentIndex, mainFragment);
-            }
-        }
-
-        void addPlayerFragment(int index, Player player) {
-            int playerFragmentIndex = ++index;
-            PlayerFragment playerFragment = PlayerFragment.newInstance(game.getGameState(), player);
-            addFragment(playerFragmentIndex, playerFragment);
-        }
-
-        private void addFragment(int index, BestClueFragment fragment) {
-            if (fragments.size() >= (index + 1)) {
-                fragments.set(index, fragment);
+            if (position == 0) {
+                return getString(R.string.main_tab_title);
             } else {
-                fragments.add(index, fragment);
+                return game.getPlayers().get(position - 1).getName();
             }
-            notifyDataSetChanged();
-        }
-
-        void clearPlayerFragments() {
-            ArrayList<PlayerFragment> playerFragments = new ArrayList<>();
-            for (int i = 1; i < fragments.size(); ++i) {
-                if (fragments.get(i) instanceof PlayerFragment) {
-                    playerFragments.add((PlayerFragment) fragments.get(i));
-                }
-            }
-            fragments.removeAll(playerFragments);
-            notifyDataSetChanged();
         }
 
         void handleGameStateChange(int gameState) {
-            Log.i(TAG, "handleGameStateChange: ");
-            for (BestClueFragment fragment : fragments) {
-                fragment.setGameState(gameState);
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                if (fragment instanceof BestClueFragment) {
+                    ((BestClueFragment) fragment).setGameState(gameState);
+                }
             }
         }
 
         private void updatePredictions() {
-            Log.i(TAG, "updatePredictions: ");
-            for (BestClueFragment fragment : fragments) {
-                fragment.updateKnowledge(game);
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                if (fragment instanceof BestClueFragment) {
+                    ((BestClueFragment) fragment).updateKnowledge(game);
+                }
             }
         }
 
         void handleOnPlayerCardsTitleClick(View view) {
-            for (BestClueFragment fragment : fragments) {
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
                 if (fragment instanceof PlayerFragment) {
                     ((PlayerFragment) fragment).handleOnPlayerCardsTitleClick(view);
                 }
@@ -545,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         void handleOnPlayerKnowledgeTitleClick(View view) {
-            for (BestClueFragment fragment : fragments) {
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
                 if (fragment instanceof PlayerFragment) {
                     ((PlayerFragment) fragment).handleOnPlayerKnowledgeTitleClick(view);
                 }
