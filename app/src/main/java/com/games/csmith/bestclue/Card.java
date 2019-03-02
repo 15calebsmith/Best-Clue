@@ -185,6 +185,17 @@ class Card implements Parcelable {
         return ROOMS;
     }
 
+    private static int getLongestCharSequenceLength(CharSequence[] charSequences) {
+        int longest = 0;
+        for (CharSequence charSequence : charSequences) {
+            if (charSequence.length() > longest) {
+                longest = charSequence.length();
+            }
+        }
+
+        return longest;
+    }
+
     private static final String[] SUSPECTS = {
             "Colonel Mustard",
             "Professor Plum",
@@ -245,17 +256,6 @@ class Card implements Parcelable {
             knowledgeLevel = in.readInt();
         }
 
-        private static int getLongestCardNameLength(CharSequence[] cardNames) {
-            int longest = 0;
-            for (CharSequence cardName : cardNames) {
-                if (cardName.length() > longest) {
-                    longest = cardName.length();
-                }
-            }
-
-            return longest;
-        }
-
         int getKnowledgeLevel() {
             return knowledgeLevel;
         }
@@ -272,7 +272,7 @@ class Card implements Parcelable {
         public String toString() {
             StringBuilder divider = new StringBuilder();
             divider.append("   ");
-            for (int i = card.getCardName().length(); i < getLongestCardNameLength(getCards()); i++) {
+            for (int i = card.getCardName().length(); i < getLongestCharSequenceLength(getCards()); i++) {
                 divider.append(" ");
             }
             return card.getCardName() + divider.toString() + knowledgeLevelToString();
