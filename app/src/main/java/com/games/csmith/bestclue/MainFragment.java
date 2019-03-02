@@ -21,29 +21,34 @@ public class MainFragment extends BestClueFragment {
     private static final String PREDICTIONS_ARRAY_LIST_KEY = "PREDICTIONS_ARRAY_LIST_KEY";
     private View rootView;
     private ArrayAdapter predictionsAdapter;
-    private ArrayList<Predictions.Prediction> predictions = new ArrayList<>();
+    private ArrayList<Prediction> predictions = new ArrayList<>();
 
 
-    public static MainFragment newInstance(int gameState, String fragmentTitle, ArrayList<Predictions.Prediction> predictions) {
+    public static MainFragment newInstance(int gameState, String fragmentTitle, ArrayList<Prediction> predictions) {
         MainFragment fragment = new MainFragment();
         fragment.setFragmentTitle(fragmentTitle);
         Bundle args = new Bundle();
         handleNewInstanceGameState(args, gameState);
         handleNewInstanceFragmentTitle(args, fragmentTitle);
+        handleNewInstancePredictionsList(args, predictions);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    static void handleNewInstancePredictionsList(Bundle args, ArrayList<Prediction> predictions) {
+        args.putParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY, predictions);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
         if ((savedInstanceState != null) && (savedInstanceState.containsKey(PREDICTIONS_ARRAY_LIST_KEY))) {
-            ArrayList<Predictions.Prediction> argPredictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
+            ArrayList<Prediction> argPredictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
             predictions.clear();
             predictions.addAll(argPredictions);
             updatePredictions();
         } else if ((getArguments() != null) && (getArguments().containsKey(PREDICTIONS_ARRAY_LIST_KEY))) {
-            ArrayList<Predictions.Prediction> argPredictions = getArguments().getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
+            ArrayList<Prediction> argPredictions = getArguments().getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
             predictions.clear();
             predictions.addAll(argPredictions);
             updatePredictions();
@@ -62,7 +67,7 @@ public class MainFragment extends BestClueFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if ((savedInstanceState) != null && (savedInstanceState.containsKey(PREDICTIONS_ARRAY_LIST_KEY))) {
-            ArrayList<Predictions.Prediction> argPredictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
+            ArrayList<Prediction> argPredictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
             predictions.clear();
             predictions.addAll(argPredictions);
             updatePredictions();
@@ -72,7 +77,7 @@ public class MainFragment extends BestClueFragment {
     public void updateKnowledge(Game game) {
         Card.Knowledge[] generatedPredictions = game.generatePredictions();
         predictions.clear();
-        predictions.addAll(Predictions.generatePredictions(generatedPredictions));
+        predictions.addAll(Prediction.Utils.generatePredictions(generatedPredictions));
         updatePredictions();
     }
 

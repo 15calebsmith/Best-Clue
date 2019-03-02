@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver updatePredictionsBroadcastReceiver = new UpdatePredictionsBroadcastReceiver();
     private ViewPager viewPager;
     private BestCluePagerAdapter bestCluePagerAdapter;
-    private ArrayList<Predictions.Prediction> predictions = new ArrayList<>();
+    private ArrayList<Prediction> predictions = new ArrayList<>();
     private Game game;
 
 
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (bestCluePagerAdapter == null) {
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        EditText playerNumberOfCardsEditText = (EditText) ((AlertDialog) dialog).findViewById(R.id.number_of_cards_edit_text);
+                        EditText playerNumberOfCardsEditText = ((AlertDialog) dialog).findViewById(R.id.number_of_cards_edit_text);
                         if (playerNumberOfCardsEditText != null) {
                             String numberOfCardsText = playerNumberOfCardsEditText.getText().toString().trim();
                             int numberOfCards = Integer.parseInt(numberOfCardsText);
