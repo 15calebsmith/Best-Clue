@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 public class MainFragment extends BestClueFragment {
     private static final String TAG = "MainFragment";
     private static final String PREDICTIONS_ARRAY_LIST_KEY = "PREDICTIONS_ARRAY_LIST_KEY";
-    private View rootView;
     private ArrayAdapter predictionsAdapter;
     private ArrayList<Prediction> predictions = new ArrayList<>();
 
@@ -41,7 +39,7 @@ public class MainFragment extends BestClueFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         if ((savedInstanceState != null) && (savedInstanceState.containsKey(PREDICTIONS_ARRAY_LIST_KEY))) {
             ArrayList<Prediction> argPredictions = savedInstanceState.getParcelableArrayList(PREDICTIONS_ARRAY_LIST_KEY);
             predictions.clear();
@@ -82,12 +80,12 @@ public class MainFragment extends BestClueFragment {
     }
 
     private void updatePredictions() {
-        if (rootView != null) {
+        if (getView() != null) {
             if (predictionsAdapter == null) {
-                predictionsAdapter = new ArrayAdapter<>(rootView.getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, predictions);
+                predictionsAdapter = new ArrayAdapter<>(getView().getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, predictions);
             }
 
-            ListView predictionsView = rootView.findViewById(R.id.prediction_list_view);
+            ListView predictionsView = getView().findViewById(R.id.prediction_list_view);
             if ((predictionsView != null) && (predictionsView.getAdapter() == null)) {
                 predictionsView.setAdapter(predictionsAdapter);
             }
@@ -97,99 +95,97 @@ public class MainFragment extends BestClueFragment {
     }
 
     void handleGameStateChange(int gameState) {
-        if (rootView != null) {
-            switch (gameState) {
-                case Game.GAME_STATE_ADD_PLAYERS:
-                    hidePlayingButtons();
-                    hidePredictionsList();
-                    showSetupButtons();
-                    disableStartGameButton();
-                    break;
-                case Game.GAME_STATE_READY_TO_START:
-                    hidePlayingButtons();
-                    hidePredictionsList();
-                    showSetupButtons();
-                    enableStartGameButton();
-                    break;
-                case Game.GAME_STATE_PLAYING:
-                    hideSetupButtons();
-                    showPlayingButtons();
-                    showPredictionsList();
-                    break;
-                default:
-                    Log.e(TAG, "handleGameStateChange: Unknown game state: " + gameState);
-                    break;
-            }
+        switch (gameState) {
+            case Game.GAME_STATE_ADD_PLAYERS:
+                hidePlayingButtons();
+                hidePredictionsList();
+                showSetupButtons();
+                disableStartGameButton();
+                break;
+            case Game.GAME_STATE_READY_TO_START:
+                hidePlayingButtons();
+                hidePredictionsList();
+                showSetupButtons();
+                enableStartGameButton();
+                break;
+            case Game.GAME_STATE_PLAYING:
+                hideSetupButtons();
+                showPlayingButtons();
+                showPredictionsList();
+                break;
+            default:
+                Log.e(TAG, "handleGameStateChange: Unknown game state: " + gameState);
+                break;
         }
     }
 
     private void showPredictionsList() {
-        View predictionsListConstraintLayout = rootView.findViewById(R.id.predictions_list_constraint_layout);
+        View predictionsListConstraintLayout = getView() == null ? null : getView().findViewById(R.id.predictions_list_constraint_layout);
         if (predictionsListConstraintLayout != null) {
             predictionsListConstraintLayout.setVisibility(View.VISIBLE);
         }
     }
 
     private void hidePredictionsList() {
-        View predictionsListConstraintLayout = rootView.findViewById(R.id.predictions_list_constraint_layout);
+        View predictionsListConstraintLayout = getView() == null ? null : getView().findViewById(R.id.predictions_list_constraint_layout);
         if (predictionsListConstraintLayout != null) {
             predictionsListConstraintLayout.setVisibility(View.GONE);
         }
     }
 
     private void showSetupButtons() {
-        Button addPlayerButton = rootView.findViewById(R.id.add_player_button);
+        View addPlayerButton = getView() == null ? null : getView().findViewById(R.id.add_player_button);
         if (addPlayerButton != null) {
             addPlayerButton.setVisibility(View.VISIBLE);
         }
-        Button startGameButton = rootView.findViewById(R.id.start_game_button);
+        View startGameButton = getView() == null ? null : getView().findViewById(R.id.start_game_button);
         if (startGameButton != null) {
             startGameButton.setVisibility(View.VISIBLE);
         }
     }
 
     private void hideSetupButtons() {
-        Button addPlayerButton = rootView.findViewById(R.id.add_player_button);
+        View addPlayerButton = getView() == null ? null : getView().findViewById(R.id.add_player_button);
         if (addPlayerButton != null) {
             addPlayerButton.setVisibility(View.GONE);
         }
-        Button startGameButton = rootView.findViewById(R.id.start_game_button);
+        View startGameButton = getView() == null ? null : getView().findViewById(R.id.start_game_button);
         if (startGameButton != null) {
             startGameButton.setVisibility(View.GONE);
         }
     }
 
     private void enableStartGameButton() {
-        Button startGameButton = rootView.findViewById(R.id.start_game_button);
+        View startGameButton = getView() == null ? null : getView().findViewById(R.id.start_game_button);
         if (startGameButton != null) {
             startGameButton.setEnabled(true);
         }
     }
 
     private void disableStartGameButton() {
-        Button startGameButton = rootView.findViewById(R.id.start_game_button);
+        View startGameButton = getView() == null ? null : getView().findViewById(R.id.start_game_button);
         if (startGameButton != null) {
             startGameButton.setEnabled(false);
         }
     }
 
     private void showPlayingButtons() {
-        Button endGameButton = rootView.findViewById(R.id.end_game_button);
+        View endGameButton = getView() == null ? null : getView().findViewById(R.id.end_game_button);
         if (endGameButton != null) {
             endGameButton.setVisibility(View.VISIBLE);
         }
-        Button newTurnButton = rootView.findViewById(R.id.new_turn_button);
+        View newTurnButton = getView() == null ? null : getView().findViewById(R.id.new_turn_button);
         if (newTurnButton != null) {
             newTurnButton.setVisibility(View.VISIBLE);
         }
     }
 
     private void hidePlayingButtons() {
-        Button endGameButton = rootView.findViewById(R.id.end_game_button);
+        View endGameButton = getView() == null ? null : getView().findViewById(R.id.end_game_button);
         if (endGameButton != null) {
             endGameButton.setVisibility(View.GONE);
         }
-        Button newTurnButton = rootView.findViewById(R.id.new_turn_button);
+        View newTurnButton = getView() == null ? null : getView().findViewById(R.id.new_turn_button);
         if (newTurnButton != null) {
             newTurnButton.setVisibility(View.GONE);
         }

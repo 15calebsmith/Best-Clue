@@ -20,7 +20,6 @@ public class PlayerFragment extends BestClueFragment {
     private static final String TAG = "PlayerFragment";
     private static final String PLAYER_KEY = "PLAYER_KEY";
     private Player player;
-    private View rootView;
     private ArrayAdapter cardsAdapter;
     private ArrayList<Card> cards = new ArrayList<>();
     private ArrayAdapter knowledgeAdapter;
@@ -40,7 +39,7 @@ public class PlayerFragment extends BestClueFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_player, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_player, container, false);
         if ((savedInstanceState != null) && (savedInstanceState.containsKey(PLAYER_KEY))) {
             player = savedInstanceState.getParcelable(PLAYER_KEY);
         } else if ((getArguments() != null) && (getArguments().containsKey(PLAYER_KEY))) {
@@ -87,56 +86,57 @@ public class PlayerFragment extends BestClueFragment {
     }
 
     public void handleOnPlayerCardsTitleClick(View view) {
-        View cardsTitleView = rootView == null ? null :rootView.findViewById(R.id.player_cards_title);
+        View cardsTitleView = getView() == null ? null :getView().findViewById(R.id.player_cards_title);
         if (view != null && view.equals(cardsTitleView)) {
             togglePlayerCardsList();
         }
     }
 
     private void togglePlayerCardsList() {
-        View playerCardsListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_cards_list_constraint_layout);
+        View playerCardsListConstraintLayout = getView() == null ? null : getView().findViewById(R.id.player_cards_list_constraint_layout);
         if (playerCardsListConstraintLayout != null) {
             playerCardsListConstraintLayout.setVisibility(playerCardsListConstraintLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
         }
     }
 
     private void hidePlayerCardsTitle() {
-        View playerCardsTitle = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
+        View playerCardsTitle = getView() == null ? null : getView().findViewById(R.id.player_cards_title);
         if (playerCardsTitle != null) {
             playerCardsTitle.setVisibility(View.GONE);
         }
     }
 
     private void showPlayerCardsTitle() {
-        View playerCardsTitle = rootView == null ? null : rootView.findViewById(R.id.player_cards_title);
+        View playerCardsTitle = getView() == null ? null : getView().findViewById(R.id.player_cards_title);
         if (playerCardsTitle != null) {
             playerCardsTitle.setVisibility(View.VISIBLE);
         }
     }
 
     public void handleOnPlayerKnowledgeTitleClick(View view) {
-        View cardsTitleView = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_title);
+        View cardsTitleView = getView() == null ? null : getView().findViewById(R.id.player_knowledge_title);
         if (view != null && view.equals(cardsTitleView)) {
+            // TODO: find out why clicking to expand does not work after ending then starting a new game.
             togglePlayerKnowledgeList();
         }
     }
 
     private void togglePlayerKnowledgeList() {
-        View playerKnowledgeListConstraintLayout = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_list_constraint_layout);
+        View playerKnowledgeListConstraintLayout = getView() == null ? null : getView().findViewById(R.id.player_knowledge_list_constraint_layout);
         if (playerKnowledgeListConstraintLayout != null) {
             playerKnowledgeListConstraintLayout.setVisibility(playerKnowledgeListConstraintLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
         }
     }
 
     private void hidePlayerKnowledgeTitle() {
-        View playerKnowledgeTitle = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_title);
+        View playerKnowledgeTitle = getView() == null ? null : getView().findViewById(R.id.player_knowledge_title);
         if (playerKnowledgeTitle != null) {
             playerKnowledgeTitle.setVisibility(View.GONE);
         }
     }
 
     private void showPlayerKnowledgeTitle() {
-        View playerKnowledgeTitle = rootView == null ? null : rootView.findViewById(R.id.player_knowledge_title);
+        View playerKnowledgeTitle = getView() == null ? null : getView().findViewById(R.id.player_knowledge_title);
         if (playerKnowledgeTitle != null) {
             playerKnowledgeTitle.setVisibility(View.VISIBLE);
         }
@@ -148,15 +148,15 @@ public class PlayerFragment extends BestClueFragment {
     }
 
     private void updateCards() {
-        if (rootView != null) {
+        if (getView() != null) {
             cards.clear();
             cards.addAll(Arrays.asList(player.getCards()));
 
             if (cardsAdapter == null) {
-                cardsAdapter = new ArrayAdapter<>(rootView.getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, cards);
+                cardsAdapter = new ArrayAdapter<>(getView().getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, cards);
             }
 
-            ListView cardsView = rootView == null ? null : (ListView) rootView.findViewById(R.id.player_cards_list_view);
+            ListView cardsView = getView() == null ? null : (ListView) getView().findViewById(R.id.player_cards_list_view);
             if ((cardsView != null) && (cardsView.getAdapter() == null)) {
                 cardsView.setAdapter(cardsAdapter);
             }
@@ -166,15 +166,15 @@ public class PlayerFragment extends BestClueFragment {
     }
 
     private void updateKnowledge() {
-        if (rootView != null) {
+        if (getView() != null) {
             knowledge.clear();
             knowledge.addAll(Arrays.asList(player.getCardKnowledge()));
 
             if (knowledgeAdapter == null) {
-                knowledgeAdapter = new ArrayAdapter<>(rootView.getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, knowledge);
+                knowledgeAdapter = new ArrayAdapter<>(getView().getContext().getApplicationContext(), R.layout.item_prediction, R.id.prediction_text_view, knowledge);
             }
 
-            ListView knowledgeListView = rootView == null ? null : (ListView) rootView.findViewById(R.id.player_knowledge_list_view);
+            ListView knowledgeListView = getView().findViewById(R.id.player_knowledge_list_view);
             if ((knowledgeListView != null) && (knowledgeListView.getAdapter() == null)) {
                 knowledgeListView.setAdapter(knowledgeAdapter);
             }
