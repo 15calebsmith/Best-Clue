@@ -116,7 +116,6 @@ public class PlayerFragment extends BestClueFragment {
     public void handleOnPlayerKnowledgeTitleClick(View view) {
         View cardsTitleView = getView() == null ? null : getView().findViewById(R.id.player_knowledge_title);
         if (view != null && view.equals(cardsTitleView)) {
-            // TODO: find out why clicking to expand does not work after rotating the screen.
             togglePlayerKnowledgeList();
         }
     }
